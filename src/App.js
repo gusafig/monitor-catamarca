@@ -1,7 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
 import "./styles.css";
+
+function Inicio({ onNavigate }) {
+  return (
+    <div className="inicio-page">
+      <div className="inicio-hero">
+        <div className="inicio-hero-inner">
+          <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
+          <h1 className="inicio-headline">
+            Catamarca<br />
+            <span className="inicio-headline-accent">en datos.</span>
+          </h1>
+          <p className="inicio-desc">
+            Seguimiento sistemático de indicadores económicos, mineros y sociales
+            de la provincia de Catamarca. Información actualizada para la toma
+            de decisiones.
+          </p>
+          <button className="inicio-cta" onClick={() => onNavigate("monitor")}>
+            Explorar indicadores →
+          </button>
+        </div>
+        <div className="inicio-stats">
+          <div className="inicio-stat">
+            <span className="inicio-stat-num">3</span>
+            <span className="inicio-stat-label">Secciones temáticas</span>
+          </div>
+          <div className="inicio-stat-divider" />
+          <div className="inicio-stat">
+            <span className="inicio-stat-num">{CONFIG.indicadores.length}</span>
+            <span className="inicio-stat-label">Indicadores activos</span>
+          </div>
+          <div className="inicio-stat-divider" />
+          <div className="inicio-stat">
+            <span className="inicio-stat-num">{CONFIG.actualizacion}</span>
+            <span className="inicio-stat-label">Última actualización</span>
+          </div>
+        </div>
+      </div>
+      <div className="inicio-cards">
+        {CONFIG.secciones.map((s) => {
+          const indicadoresSec = CONFIG.indicadores.filter((i) => i.seccion === s.id);
+          return (
+            <button
+              key={s.id}
+              className="inicio-card"
+              onClick={() => onNavigate("monitor", s.id)}
+              style={{ "--card-color": s.color }}
+            >
+              <span className="inicio-card-dot" />
+              <span className="inicio-card-name">{s.label}</span>
+              <span className="inicio-card-count">{indicadoresSec.length} indicadores</span>
+              <span className="inicio-card-arrow">→</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const CONTENIDOS_INICIALES = [
   {
@@ -23,28 +81,23 @@ function Contenidos() {
   const [errorPass, setErrorPass] = useState(false);
   const [form, setForm] = useState({ id: null, titulo: "", fecha: "", texto: "", imagen: "", link: "", linkLabel: "" });
   const [editando, setEditando] = useState(false);
-
   const PASSWORD = "synergia2026";
 
   function login() {
     if (adminPass === PASSWORD) { setAutenticado(true); setErrorPass(false); }
     else { setErrorPass(true); }
   }
-
   function nuevoItem() {
     setForm({ id: null, titulo: "", fecha: new Date().toISOString().slice(0, 10), texto: "", imagen: "", link: "", linkLabel: "" });
     setEditando(true);
   }
-
   function editarItem(item) { setForm({ ...item }); setEditando(true); }
-
   function guardar() {
     if (!form.titulo.trim()) return;
     if (form.id) { setItems(items.map((i) => (i.id === form.id ? { ...form } : i))); }
     else { setItems([{ ...form, id: Date.now() }, ...items]); }
     setEditando(false);
   }
-
   function eliminar(id) {
     if (window.confirm("¿Eliminar este informe?")) setItems(items.filter((i) => i.id !== id));
   }
@@ -57,7 +110,6 @@ function Contenidos() {
           {adminAbierto ? "Cerrar panel" : "⚙ Administrar"}
         </button>
       </div>
-
       {adminAbierto && (
         <div className="admin-panel">
           {!autenticado ? (
@@ -79,7 +131,7 @@ function Contenidos() {
               <textarea className="admin-textarea" placeholder="Texto del informe" value={form.texto} onChange={(e) => setForm({ ...form, texto: e.target.value })} />
               <input className="admin-input" placeholder="URL de imagen (opcional)" value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
               <input className="admin-input" placeholder="URL de link (opcional)" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
-              <input className="admin-input" placeholder="Texto del link (ej: Ver informe completo)" value={form.linkLabel} onChange={(e) => setForm({ ...form, linkLabel: e.target.value })} />
+              <input className="admin-input" placeholder="Texto del link" value={form.linkLabel} onChange={(e) => setForm({ ...form, linkLabel: e.target.value })} />
               <div className="admin-form-btns">
                 <button className="btn-primary" onClick={guardar}>Guardar</button>
                 <button className="btn-secondary" onClick={() => setEditando(false)}>Cancelar</button>
@@ -93,7 +145,6 @@ function Contenidos() {
           )}
         </div>
       )}
-
       <div className="informes-grid">
         {items.length === 0 && <p className="informes-empty">No hay informes cargados aún.</p>}
         {items.map((item) => (
@@ -128,22 +179,12 @@ function Contenidos() {
   );
 }
 
-function Contacto() {
-  return (
-    <div className="contacto-page">
-      <h2 className="contacto-titulo">Contacto</h2>
-      <div className="contacto-card">
-        <p className="contacto-texto">Para consultas, propuestas o más información, escribinos a:</p>
-        <a href="mailto:synergiaconsult76@gmail.com" className="contacto-mail">
-          synergiaconsult76@gmail.com
-        </a>
-      </div>
-    </div>
-  );
-}
+function Monitor({ seccionInicial }) {
+  const [seccionActiva, setSeccionActiva] = useState(seccionInicial || CONFIG.secciones[0].id);
+  useEffect(() => {
+    if (seccionInicial) setSeccionActiva(seccionInicial);
+  }, [seccionInicial]);
 
-function Monitor() {
-  const [seccionActiva, setSeccionActiva] = useState(CONFIG.secciones[0].id);
   return (
     <div>
       <div className="monitor-header">
@@ -181,37 +222,53 @@ function Monitor() {
 }
 
 export default function App() {
-  const [pagina, setPagina] = useState("monitor");
+  const [pagina, setPagina] = useState("inicio");
+  const [seccionMonitor, setSeccionMonitor] = useState(null);
+  const [menuAbierto, setMenuAbierto] = useState(false);
+
+  function navegarA(pag, seccion) {
+    setPagina(pag);
+    if (seccion) setSeccionMonitor(seccion);
+    setMenuAbierto(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   return (
     <div className="app">
       <header className="header">
         <div className="header-inner">
-          <div className="header-brand" onClick={() => setPagina("monitor")} style={{ cursor: "pointer" }}>
-            <span className="site-name">Synergia Consultores</span>
+          <div className="header-brand" onClick={() => navegarA("inicio")} style={{ cursor: "pointer" }}>
+            <img src="/logo.png" alt="Synergia Consultores" className="header-logo" />
           </div>
-          <nav className="main-nav">
-            <button className={"nav-btn " + (pagina === "monitor" ? "active" : "")} onClick={() => setPagina("monitor")}>Monitor</button>
-            <button className={"nav-btn " + (pagina === "contenidos" ? "active" : "")} onClick={() => setPagina("contenidos")}>Contenidos</button>
-            <button className={"nav-btn " + (pagina === "contacto" ? "active" : "")} onClick={() => setPagina("contacto")}>Contacto</button>
+          <nav className={"main-nav" + (menuAbierto ? " open" : "")}>
+            <button className={"nav-btn " + (pagina === "inicio" ? "active" : "")} onClick={() => navegarA("inicio")}>Inicio</button>
+            <button className={"nav-btn " + (pagina === "monitor" ? "active" : "")} onClick={() => navegarA("monitor")}>Monitor</button>
+            <button className={"nav-btn " + (pagina === "contenidos" ? "active" : "")} onClick={() => navegarA("contenidos")}>Contenidos</button>
           </nav>
+          <button className="hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
+            <span /><span /><span />
+          </button>
         </div>
       </header>
 
       <main className="main">
-        {pagina === "monitor" && <Monitor />}
+        {pagina === "inicio"     && <Inicio onNavigate={navegarA} />}
+        {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} />}
         {pagina === "contenidos" && <div className="main-inner"><Contenidos /></div>}
-        {pagina === "contacto" && <div className="main-inner"><Contacto /></div>}
       </main>
 
       <footer className="footer">
         <div className="footer-inner">
-          <span>synergiaconsult76@gmail.com</span>
-          <div className="footer-logo-wrap">
+          <div className="footer-brand">
             <img src="/logo.png" alt="Synergia Consultores" className="footer-logo" />
           </div>
+          <a href="mailto:synergiaconsult76@gmail.com" className="footer-mail">
+            synergiaconsult76@gmail.com
+          </a>
+          <div className="footer-copy">© {new Date().getFullYear()} Synergia Consultores</div>
         </div>
       </footer>
     </div>
   );
 }
+
