@@ -66,8 +66,8 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <Line
                 type="monotone" dataKey="valor"
                 stroke={colores.primario} strokeWidth={2}
-                dot={{ r: 3, fill: colores.primario }}
-                activeDot={{ r: 5 }}
+                dot={false}
+                activeDot={{ r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
