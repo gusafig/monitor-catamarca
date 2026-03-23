@@ -217,7 +217,16 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-            <div dangerouslySetInnerHTML={{ __html: item.embed }} />
+            {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
+              ? <iframe
+                  src={item.embed.trim()}
+                  title="Visualización"
+                  style={{width:"100%", minHeight:"400px", border:"none", display:"block"}}
+                  scrolling="no"
+                  allowFullScreen
+                />
+              : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
+            }
           </div>
         )}
 
@@ -469,5 +478,4 @@ export default function App() {
     </div>
   );
 }
-
 
