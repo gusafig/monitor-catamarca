@@ -1,171 +1,167 @@
 // ============================================================
-//  MONITOR CATAMARCA — CONFIGURACIÓN DE INDICADORES
-//  Editá este archivo para agregar/quitar variables.
-//  Cada indicador apunta a un CSV en /public/data/
+//  DASHBOARD — CONFIGURACIÓN DE VARIABLES
+//  Editá este archivo para renombrar variables y asignar CSVs.
+//  Cada variable apunta a un CSV en /public/data/
 // ============================================================
 
 export const CONFIG = {
   titulo: "Catamarca en datos",
-  subtitulo: "Monitor de indicadores provinciales",
+  subtitulo: "Dashboard de variables socioeconómicas",
   fuente: "Fuente: completar con fuentes oficiales",
   actualizacion: "2025",
 
   // ----------------------------------------------------------
-  //  SECCIONES (tabs)
-  //  Cada sección agrupa indicadores relacionados.
+  //  CATEGORÍAS
   // ----------------------------------------------------------
   secciones: [
-    {
-      id: "economia",
-      label: "Economía",
-      color: "#1D9E75",
-    },
-    {
-      id: "mineria",
-      label: "Minería",
-      color: "#378ADD",
-    },
-    {
-      id: "social",
-      label: "Social",
-      color: "#EF9F27",
-    },
+    { id: "economia_real",    label: "Economía real",       color: "#1D9E75" },
+    { id: "finanzas",         label: "Finanzas Públicas",   color: "#378ADD" },
+    { id: "cotizaciones",     label: "Cotizaciones/Otros",  color: "#EF9F27" },
   ],
 
   // ----------------------------------------------------------
-  //  INDICADORES
+  //  VARIABLES
   //  - seccion: debe coincidir con un id de secciones[]
   //  - archivo: nombre del CSV dentro de /public/data/
-  //  - tipo: "linea" | "barra" | "area" | "dona"
-  //  - kpi: true → aparece en las tarjetas de resumen
-  //  - formato: función de JS para mostrar el valor del KPI
-  //  - descripcion: tooltip explicativo (opcional)
+  //  - tipo: "linea" | "barra" | "area" | "barra_apilada" | "linea_doble"
+  //  - kpi: true → aparece en las tarjetas del dashboard
+  //  - formato: función JS para mostrar el valor
+  //  - periodo: "mes" | "trimestre" | "año" (para mostrar referencia)
   // ----------------------------------------------------------
   indicadores: [
-    // ── ECONOMÍA ─────────────────────────────────────────────
+    // ── ECONOMÍA REAL ─────────────────────────────────────────
     {
-      id: "pbg",
-      seccion: "economia",
-      nombre: "Producto Bruto Geográfico",
-      unidad: "mill. $",
-      archivo: "pbg.csv",               // columnas: año, valor
+      id: "variable1",
+      seccion: "economia_real",
+      nombre: "Variable 1",
+      unidad: "unidad",
+      archivo: "variable1.csv",
       tipo: "area",
       kpi: true,
-      formato: (v) => `${(v / 1000).toFixed(1)}B`,
-      descripcion: "PBG a precios corrientes, en millones de pesos.",
-    },
-    {
-      id: "exportaciones",
-      seccion: "economia",
-      nombre: "Exportaciones",
-      unidad: "M USD",
-      archivo: "exportaciones.csv",     // columnas: año, mineria, agro, otros
-      tipo: "barra_apilada",
-      kpi: true,
-      formato: (v) => `${v.toLocaleString("es-AR")}`,
-      descripcion: "Exportaciones provinciales por rubro, en millones de USD.",
-    },
-    {
-      id: "coparticipacion",
-      seccion: "economia",
-      nombre: "Coparticipación recibida",
-      unidad: "mill. $",
-      archivo: "coparticipacion.csv",   // columnas: periodo, valor
-      tipo: "linea",
-      kpi: false,
       formato: (v) => `${v}`,
-      descripcion: "Transferencias de coparticipación federal recibidas.",
+      periodo: "año",
+      descripcion: "Descripción de la variable 1.",
     },
     {
-      id: "inflacion",
-      seccion: "economia",
-      nombre: "Inflación provincial",
-      unidad: "%",
-      archivo: "inflacion.csv",         // columnas: periodo, valor
+      id: "variable2",
+      seccion: "economia_real",
+      nombre: "Variable 2",
+      unidad: "unidad",
+      archivo: "variable2.csv",
       tipo: "barra",
       kpi: true,
-      formato: (v) => `${v}%`,
-      descripcion: "Variación del IPC local (si disponible) o referencia nacional.",
-    },
-
-    // ── MINERÍA ──────────────────────────────────────────────
-    {
-      id: "litio",
-      seccion: "mineria",
-      nombre: "Producción de litio",
-      unidad: "toneladas",
-      archivo: "litio.csv",             // columnas: año, valor
-      tipo: "barra",
-      kpi: true,
-      formato: (v) => `${(v / 1000).toFixed(1)}k t`,
-      descripcion: "Producción anual de carbonato de litio equivalente.",
+      formato: (v) => `${v}`,
+      periodo: "año",
+      descripcion: "Descripción de la variable 2.",
     },
     {
-      id: "cobre",
-      seccion: "mineria",
-      nombre: "Producción de cobre",
-      unidad: "toneladas",
-      archivo: "cobre.csv",             // columnas: año, valor
-      tipo: "barra",
-      kpi: true,
-      formato: (v) => `${(v / 1000).toFixed(0)}k t`,
-      descripcion: "Producción anual de cobre fino.",
-    },
-    {
-      id: "inversion_minera",
-      seccion: "mineria",
-      nombre: "Inversión minera",
-      unidad: "M USD",
-      archivo: "inversion_minera.csv",  // columnas: año, valor
-      tipo: "area",
-      kpi: true,
-      formato: (v) => `$${v}M`,
-      descripcion: "Inversión declarada en proyectos mineros.",
-    },
-
-    // ── SOCIAL ───────────────────────────────────────────────
-    {
-      id: "desempleo",
-      seccion: "social",
-      nombre: "Tasa de desocupación",
-      unidad: "%",
-      archivo: "desempleo.csv",         // columnas: periodo, valor
+      id: "variable3",
+      seccion: "economia_real",
+      nombre: "Variable 3",
+      unidad: "unidad",
+      archivo: "variable3.csv",
       tipo: "linea",
       kpi: true,
-      formato: (v) => `${v}%`,
-      descripcion: "Tasa de desocupación abierta (EPH, GBA de referencia o dato provincial).",
+      formato: (v) => `${v}`,
+      periodo: "año",
+      descripcion: "Descripción de la variable 3.",
+    },
+
+    // ── FINANZAS PÚBLICAS ─────────────────────────────────────
+    {
+      id: "variable4",
+      seccion: "finanzas",
+      nombre: "Variable 4",
+      unidad: "unidad",
+      archivo: "variable4.csv",
+      tipo: "linea",
+      kpi: true,
+      formato: (v) => `${v}`,
+      periodo: "mes",
+      descripcion: "Descripción de la variable 4.",
     },
     {
-      id: "salario",
-      seccion: "social",
-      nombre: "Salario promedio",
-      unidad: "$",
-      archivo: "salario.csv",           // columnas: periodo, nominal, real
-      tipo: "linea_doble",
+      id: "variable5",
+      seccion: "finanzas",
+      nombre: "Variable 5",
+      unidad: "unidad",
+      archivo: "variable5.csv",
+      tipo: "barra",
       kpi: true,
-      formato: (v) => `$${(v / 1000).toFixed(0)}k`,
-      descripcion: "Salario promedio nominal y real (deflactado por IPC).",
+      formato: (v) => `${v}`,
+      periodo: "mes",
+      descripcion: "Descripción de la variable 5.",
+    },
+    {
+      id: "variable6",
+      seccion: "finanzas",
+      nombre: "Variable 6",
+      unidad: "unidad",
+      archivo: "variable6.csv",
+      tipo: "area",
+      kpi: true,
+      formato: (v) => `${v}`,
+      periodo: "mes",
+      descripcion: "Descripción de la variable 6.",
+    },
+
+    // ── COTIZACIONES / OTROS ──────────────────────────────────
+    {
+      id: "variable7",
+      seccion: "cotizaciones",
+      nombre: "Variable 7",
+      unidad: "unidad",
+      archivo: "variable7.csv",
+      tipo: "linea",
+      kpi: true,
+      formato: (v) => `${v}`,
+      periodo: "mes",
+      descripcion: "Descripción de la variable 7.",
+    },
+    {
+      id: "variable8",
+      seccion: "cotizaciones",
+      nombre: "Variable 8",
+      unidad: "unidad",
+      archivo: "variable8.csv",
+      tipo: "barra",
+      kpi: true,
+      formato: (v) => `${v}`,
+      periodo: "mes",
+      descripcion: "Descripción de la variable 8.",
+    },
+    {
+      id: "variable9",
+      seccion: "cotizaciones",
+      nombre: "Variable 9",
+      unidad: "unidad",
+      archivo: "variable9.csv",
+      tipo: "linea",
+      kpi: true,
+      formato: (v) => `${v}`,
+      periodo: "año",
+      descripcion: "Descripción de la variable 9.",
     },
   ],
 };
 
 // ----------------------------------------------------------
-//  COLORES POR SECCIÓN  (se usan en gráficos y KPI cards)
+//  COLORES POR CATEGORÍA
 // ----------------------------------------------------------
 export const COLORES = {
-  economia: {
-    primario: "#1D9E75",
+  economia_real: {
+    primario:   "#1D9E75",
     secundario: "#9FE1CB",
-    fondo: "rgba(29,158,117,0.08)",
+    fondo:      "rgba(29,158,117,0.08)",
   },
-  mineria: {
-    primario: "#378ADD",
+  finanzas: {
+    primario:   "#378ADD",
     secundario: "#85B7EB",
-    fondo: "rgba(55,138,221,0.08)",
+    fondo:      "rgba(55,138,221,0.08)",
   },
-  social: {
-    primario: "#EF9F27",
+  cotizaciones: {
+    primario:   "#EF9F27",
     secundario: "#FAC775",
-    fondo: "rgba(239,159,39,0.08)",
+    fondo:      "rgba(239,159,39,0.08)",
   },
 };
