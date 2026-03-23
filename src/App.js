@@ -335,7 +335,7 @@ function Articulo({ item, onVolver }) {
     />
   : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
 }
-            }
+            
           </div>
         )}
 
