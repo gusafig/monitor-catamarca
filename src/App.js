@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useCsvData, lastValue } from "./hooks/useCsvData";
 import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
 import "./styles.css";
@@ -101,20 +102,110 @@ function Inicio({ onNavigate }) {
   );
 }
 
-// ── MONITOR ──────────────────────────────────────────────────────
+
+// ── DASHBOARD CARD CON DATOS ──────────────────────────────────────
+function DashboardCardLoader({ indicador, onVerDetalle }) {
+  const { data, loading } = useCsvData(indicador.archivo);
+  const val = lastValue(data, "valor");
+  const formatted = !loading && val !== null && indicador.formato
+    ? indicador.formato(val)
+    : loading ? "…" : "—";
+  const seccion = CONFIG.secciones.find((s) => s.id === indicador.seccion);
+  const color = seccion?.color || "#1D9E75";
+
+  // Último periodo disponible
+  const ultimoPeriodo = data && data.length > 0
+    ? (data[data.length - 1].periodo || data[data.length - 1].año || CONFIG.actualizacion)
+    : CONFIG.actualizacion;
+
+  return (
+    <button
+      className="dash-card"
+      style={{ "--dash-color": color }}
+      onClick={() => onVerDetalle(indicador)}
+      title={indicador.descripcion}
+    >
+      <div className="dash-card-top">
+        <span className="dash-card-badge" style={{ background: color + "18", color }}>
+          {seccion?.label}
+        </span>
+      </div>
+      <div className="dash-card-nombre">{indicador.nombre}</div>
+      <div className={"dash-card-valor" + (loading ? " loading" : "")}>{formatted}</div>
+      <div className="dash-card-periodo">
+        <span className="dash-card-unidad">{indicador.unidad}</span>
+        <span className="dash-card-ref">{ultimoPeriodo}</span>
+      </div>
+      <div className="dash-card-cta">Ver gráfico →</div>
+    </button>
+  );
+}
+
+// ── VISTA DETALLE VARIABLE ────────────────────────────────────────
+function DetalleVariable({ indicador, onVolver }) {
+  const seccion = CONFIG.secciones.find((s) => s.id === indicador.seccion);
+  const color = seccion?.color || "#1D9E75";
+
+  return (
+    <div>
+      <div className="monitor-header" style={{ background: "#111" }}>
+        <div className="monitor-header-inner">
+          <div>
+            <button className="detalle-volver" onClick={onVolver}>← Dashboard</button>
+            <h2 className="monitor-title" style={{ marginTop: "0.4rem" }}>
+              {indicador.nombre}
+            </h2>
+          </div>
+          <div className="header-meta">
+            <span className="header-updated" style={{ color }}>
+              {seccion?.label}
+            </span>
+            <span className="header-fuente">{CONFIG.fuente}</span>
+          </div>
+        </div>
+      </div>
+      <div className="main-inner" style={{ paddingTop: "1.75rem" }}>
+        <Section seccionId={indicador.seccion} soloIndicador={indicador.id} />
+      </div>
+    </div>
+  );
+}
+
+// ── MONITOR / DASHBOARD ───────────────────────────────────────────
 function Monitor({ seccionInicial }) {
-  const [seccionActiva, setSeccionActiva] = useState(seccionInicial || CONFIG.secciones[0].id);
-  useEffect(() => { if (seccionInicial) setSeccionActiva(seccionInicial); }, [seccionInicial]);
+  const [vista, setVista] = useState("dashboard"); // dashboard | detalle
+  const [indicadorActivo, setIndicadorActivo] = useState(null);
+  const [filtro, setFiltro] = useState("todas");
+
+  function verDetalle(indicador) {
+    setIndicadorActivo(indicador);
+    setVista("detalle");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function volverDashboard() {
+    setVista("dashboard");
+    setIndicadorActivo(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (vista === "detalle" && indicadorActivo) {
+    return <DetalleVariable indicador={indicadorActivo} onVolver={volverDashboard} />;
+  }
+
+  const indicadoresFiltrados = filtro === "todas"
+    ? CONFIG.indicadores
+    : CONFIG.indicadores.filter((i) => i.seccion === filtro);
 
   return (
     <div>
       <div className="monitor-header">
         <div className="monitor-header-inner">
           <div>
-            <span className="header-eyebrow">Monitor de indicadores</span>
+            <span className="header-eyebrow">Synergia Consultores</span>
             <h2 className="monitor-title">
-              {CONFIG.titulo.split(" en ")[0]}{" "}
-              <span className="accent">en {CONFIG.titulo.split(" en ")[1]}</span>
+              Dashboard de variables{" "}
+              <span className="accent">socioeconómicas</span>
             </h2>
           </div>
           <div className="header-meta">
@@ -123,20 +214,35 @@ function Monitor({ seccionInicial }) {
           </div>
         </div>
       </div>
-      <nav className="tabs">
-        <div className="tabs-inner">
+
+      <div className="dash-filtros-bar">
+        <div className="dash-filtros-inner">
+          <button
+            className={"dash-filtro-btn" + (filtro === "todas" ? " active" : "")}
+            onClick={() => setFiltro("todas")}
+          >
+            Todas
+          </button>
           {CONFIG.secciones.map((s) => (
-            <button key={s.id}
-              className={"tab-btn " + (seccionActiva === s.id ? "active" : "")}
-              style={seccionActiva === s.id ? { "--tab-color": s.color } : {}}
-              onClick={() => setSeccionActiva(s.id)}>
+            <button
+              key={s.id}
+              className={"dash-filtro-btn" + (filtro === s.id ? " active" : "")}
+              style={filtro === s.id ? { "--filtro-color": s.color } : {}}
+              onClick={() => setFiltro(s.id)}
+            >
+              <span className="dash-filtro-dot" style={{ background: s.color }} />
               {s.label}
             </button>
           ))}
         </div>
-      </nav>
-      <div className="main-inner" style={{ paddingTop: "1.5rem" }}>
-        <Section seccionId={seccionActiva} />
+      </div>
+
+      <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "3rem" }}>
+        <div className="dash-grid">
+          {indicadoresFiltrados.map((ind) => (
+            <DashboardCardLoader key={ind.id} indicador={ind} onVerDetalle={verDetalle} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -478,4 +584,5 @@ export default function App() {
     </div>
   );
 }
+
 
