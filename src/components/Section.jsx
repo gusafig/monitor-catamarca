@@ -8,10 +8,11 @@ import { CONFIG, COLORES } from "../data/config";
  * Renderiza todos los indicadores de una sección:
  * primero las KPI cards, luego los gráficos en grilla.
  */
-export function Section({ seccionId }) {
+export function Section({ seccionId, soloIndicador }) {
   const seccion = CONFIG.secciones.find((s) => s.id === seccionId);
-  const indicadores = CONFIG.indicadores.filter((i) => i.seccion === seccionId);
-  const colores = COLORES[seccionId] || COLORES.economia;
+  const todos = CONFIG.indicadores.filter((i) => i.seccion === seccionId);
+  const indicadores = soloIndicador ? todos.filter((i) => i.id === soloIndicador) : todos;
+  const colores = COLORES[seccionId] || COLORES.economia_real;
   const kpis = indicadores.filter((i) => i.kpi);
   const graficos = indicadores; // todos tienen gráfico
 
