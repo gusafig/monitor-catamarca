@@ -9,13 +9,10 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-src 'self' https://datawrapper.dwcdn.net https://*.datawrapper.de;"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
+          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; frame-src 'self' https://datawrapper.dwcdn.net https://*.datawrapper.de https://*.datawrapper.dwcdn.net;"
         }
       ]
     }
   ]
 }
+
