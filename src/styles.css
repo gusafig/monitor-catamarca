@@ -648,7 +648,7 @@ a { text-decoration: none; }
   .informe-card { grid-template-columns: 1fr; }
   .informe-body { border-right: none; border-bottom: 1px solid var(--border-color); padding: 1.25rem; }
   .informe-viz { padding: 1.25rem; }
-  .footer-inner { grid-template-columns: 1fr; text-align: left; gap: 0.6rem; padding: 0 1.25rem; }
+  .footer-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1.5rem 1.25rem; }
   .footer-brand { justify-content: flex-start; }
   .footer-mail { text-align: left; }
   .footer-copy { text-align: left; }
