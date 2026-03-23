@@ -323,19 +323,16 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-          {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
-  ? <iframe
-      src={item.embed.trim()}
-      title="Visualización"
-      width="100%"
-      height="400"
-      style={{width:"100%", height:"400px", border:"none", display:"block"}}
-      scrolling="no"
-      allowFullScreen
-    />
-  : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
-}
-            
+            {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
+              ? <iframe
+                  src={item.embed.trim()}
+                  title="Visualización"
+                  style={{width:"100%", minHeight:"400px", border:"none", display:"block"}}
+                  scrolling="no"
+                  allowFullScreen
+                />
+              : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
+            }
           </div>
         )}
 
@@ -499,7 +496,13 @@ function Admin({ items, setItems, onSalir }) {
 
 // ── APP ──────────────────────────────────────────────────────────
 export default function App() {
-  const [pagina, setPagina] = useState("inicio");
+  const [pagina, setPagina] = useState(() => {
+    const path = window.location.pathname;
+    if (path === "/admin") return "admin";
+    if (path === "/monitor") return "monitor";
+    if (path === "/contenidos") return "contenidos";
+    return "inicio";
+  });
   const [seccionMonitor, setSeccionMonitor] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [articuloId, setArticuloId] = useState(null);
@@ -515,6 +518,7 @@ export default function App() {
     if (seccion) setSeccionMonitor(seccion);
     setMenuAbierto(false);
     setArticuloId(null);
+    window.history.pushState({}, "", pag === "inicio" ? "/" : "/" + pag);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -587,5 +591,3 @@ export default function App() {
     </div>
   );
 }
-
-
