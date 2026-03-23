@@ -70,6 +70,7 @@ const CONTENIDOS_INICIALES = [
     imagen: "",
     link: "",
     linkLabel: "",
+    embed: "",
   },
 ];
 
@@ -79,7 +80,7 @@ function Contenidos() {
   const [adminPass, setAdminPass] = useState("");
   const [autenticado, setAutenticado] = useState(false);
   const [errorPass, setErrorPass] = useState(false);
-  const [form, setForm] = useState({ id: null, titulo: "", fecha: "", texto: "", imagen: "", link: "", linkLabel: "" });
+  const [form, setForm] = useState({ id: null, titulo: "", fecha: "", texto: "", imagen: "", link: "", linkLabel: "", embed: "" });
   const [editando, setEditando] = useState(false);
   const PASSWORD = "synergia2026";
 
@@ -88,7 +89,7 @@ function Contenidos() {
     else { setErrorPass(true); }
   }
   function nuevoItem() {
-    setForm({ id: null, titulo: "", fecha: new Date().toISOString().slice(0, 10), texto: "", imagen: "", link: "", linkLabel: "" });
+    setForm({ id: null, titulo: "", fecha: new Date().toISOString().slice(0, 10), texto: "", imagen: "", link: "", linkLabel: "", embed: "" });
     setEditando(true);
   }
   function editarItem(item) { setForm({ ...item }); setEditando(true); }
@@ -132,6 +133,7 @@ function Contenidos() {
               <input className="admin-input" placeholder="URL de imagen (opcional)" value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
               <input className="admin-input" placeholder="URL de link (opcional)" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
               <input className="admin-input" placeholder="Texto del link" value={form.linkLabel} onChange={(e) => setForm({ ...form, linkLabel: e.target.value })} />
+              <textarea className="admin-textarea" placeholder="Código embed de Datawrapper (opcional)" value={form.embed} onChange={(e) => setForm({ ...form, embed: e.target.value })} style={{minHeight: "80px", fontFamily: "monospace", fontSize: "11px"}} />
               <div className="admin-form-btns">
                 <button className="btn-primary" onClick={guardar}>Guardar</button>
                 <button className="btn-secondary" onClick={() => setEditando(false)}>Cancelar</button>
@@ -149,11 +151,6 @@ function Contenidos() {
         {items.length === 0 && <p className="informes-empty">No hay informes cargados aún.</p>}
         {items.map((item) => (
           <div className="informe-card" key={item.id}>
-            {item.imagen && (
-              <div className="informe-img-wrap">
-                <img src={item.imagen} alt={item.titulo} className="informe-img" />
-              </div>
-            )}
             <div className="informe-body">
               <span className="informe-fecha">
                 {item.fecha ? new Date(item.fecha + "T12:00:00").toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" }) : ""}
@@ -165,6 +162,12 @@ function Contenidos() {
                   {item.linkLabel || "Ver más →"}
                 </a>
               )}
+            </div>
+            <div className="informe-viz">
+              {item.embed
+                ? <div dangerouslySetInnerHTML={{ __html: item.embed }} />
+                : <div className="informe-viz-empty">Sin visualización</div>
+              }
             </div>
             {autenticado && adminAbierto && (
               <div className="informe-admin-btns">
