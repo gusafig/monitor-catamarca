@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { jsPDF } from "jspdf";
 import { useCsvData, lastValue } from "./hooks/useCsvData";
 import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
@@ -311,11 +312,144 @@ function Contenidos({ items, onVerArticulo }) {
   );
 }
 
+// ── DATAWRAPPER EMBED ────────────────────────────────────────────
+function DatawrapperEmbed({ embed }) {
+  function getSrc(raw) {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("http") && trimmed.includes("datawrapper.dwcdn.net")) return trimmed;
+    const match = trimmed.match(/src=["']([^"']+)["']/);
+    return match ? match[1] : null;
+  }
+  function getHeight(raw) {
+    const match = raw.match(/height=["']?(\d+)["']?/);
+    return match ? parseInt(match[1], 10) : 400;
+  }
+  const src = getSrc(embed);
+  const height = getHeight(embed);
+  if (!src) return null;
+  return (
+    <iframe
+      src={src}
+      title="Visualización Datawrapper"
+      width="100%"
+      height={height}
+      style={{ width: "100%", height: height + "px", border: "none", display: "block" }}
+      scrolling="no"
+      allowFullScreen
+    />
+  );
+}
+
 // ── VISTA DE ARTÍCULO ────────────────────────────────────────────
 function Articulo({ item, onVolver }) {
   if (!item) return null;
 
   const parrafos = (item.texto || "").split("\n\n").filter(Boolean);
+
+  function descargarPDF(item) {
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxW = pageW - margin * 2;
+    let y = margin;
+
+    // Encabezado rojo
+    doc.setFillColor(230, 50, 46);
+    doc.rect(0, 0, pageW, 10, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.text("Synergia Consultores", margin, 6.5);
+    y = 22;
+
+    // Fecha
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(formatFecha(item.fecha), margin, y);
+    y += 8;
+
+    // Título
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(17, 17, 17);
+    const tituloLines = doc.splitTextToSize(item.titulo, maxW);
+    doc.text(tituloLines, margin, y);
+    y += tituloLines.length * 9 + 4;
+
+    // Bajada
+    if (item.bajada) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor(80, 80, 80);
+      const bajadaLines = doc.splitTextToSize(item.bajada, maxW);
+      doc.text(bajadaLines, margin, y);
+      y += bajadaLines.length * 6 + 4;
+    }
+
+    // Separador
+    doc.setDrawColor(230, 50, 46);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y, margin + 20, y);
+    y += 8;
+
+    // Cuerpo
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(34, 34, 34);
+    const parrafosPDF = (item.texto || "").split("\n\n").filter(Boolean);
+    parrafosPDF.forEach((parrafo) => {
+      const lines = doc.splitTextToSize(parrafo, maxW);
+      lines.forEach((line) => {
+        if (y > pageH - margin) { doc.addPage(); y = margin; }
+        doc.text(line, margin, y);
+        y += 6;
+      });
+      y += 4;
+    });
+
+    // Nota embed
+    if (item.embed) {
+      if (y > pageH - 30) { doc.addPage(); y = margin; }
+      y += 4;
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.3);
+      doc.rect(margin, y, maxW, 18, "S");
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text("Visualización interactiva disponible en la versión web del artículo.", margin + 4, y + 7);
+      const srcMatch = item.embed.match(/src=["']([^"']+)["']/);
+      const src = srcMatch ? srcMatch[1] : (item.embed.startsWith("http") ? item.embed.trim() : null);
+      if (src) {
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(21, 96, 122);
+        doc.text(src, margin + 4, y + 13);
+      }
+      y += 24;
+    }
+
+    // Pie de página
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFillColor(245, 245, 245);
+      doc.rect(0, pageH - 10, pageW, 10, "F");
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text("synergiaconsult76@gmail.com", margin, pageH - 4);
+      doc.text(`${i} / ${totalPages}`, pageW - margin, pageH - 4, { align: "right" });
+    }
+
+    const nombreArchivo = item.titulo
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, "")
+      .replace(/ +/g, "-")
+      .slice(0, 50);
+    doc.save(`${nombreArchivo}.pdf`);
+  }
 
   return (
     <div className="articulo-page">
@@ -331,6 +465,9 @@ function Articulo({ item, onVolver }) {
         <div className="articulo-meta">
           <span className="articulo-fecha">{formatFecha(item.fecha)}</span>
           <span className="articulo-lectura">{tiempoLectura(item.texto)}</span>
+          <button className="articulo-pdf-btn" onClick={() => descargarPDF(item)}>
+            ↓ Descargar PDF
+          </button>
         </div>
 
         <h1 className="articulo-titulo">{item.titulo}</h1>
@@ -347,18 +484,7 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-           {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
-  ? <iframe
-      src={item.embed.trim()}
-      title="Visualización"
-      width="100%"
-      height="400"
-      style={{width:"100%", height:"400px", border:"none", display:"block"}}
-      scrolling="no"
-      allowFullScreen
-    />
-  : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
-}
+            <DatawrapperEmbed embed={item.embed} />
           </div>
         )}
 
