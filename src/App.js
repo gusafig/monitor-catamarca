@@ -302,50 +302,28 @@ function Contenidos({ items, onVerArticulo }) {
   );
 }
 
-// ── DATAWRAPPER EMBED ────────────────────────────────────────────
-function DatawrapperEmbed({ embed }) {
-  // Extrae la URL src ya sea de una URL directa o de un código iframe
-  function getSrc(raw) {
-    const trimmed = raw.trim();
-    // URL directa
-    if (trimmed.startsWith("http") && trimmed.includes("datawrapper.dwcdn.net")) {
-      return trimmed;
-    }
-    // Código iframe: extraer src="..."
-    const match = trimmed.match(/src=["']([^"']+)["']/);
-    if (match) return match[1];
-    return null;
-  }
-
-  // Extrae la altura del atributo height del iframe original
-  function getHeight(raw) {
-    const match = raw.match(/height=["']?(\d+)["']?/);
-    return match ? parseInt(match[1], 10) : 400;
-  }
-
-  const src = getSrc(embed);
-  const height = getHeight(embed);
-
-  if (!src) return null;
-
-  return (
-    <iframe
-      src={src}
-      title="Visualización Datawrapper"
-      width="100%"
-      height={height}
-      style={{ width: "100%", height: height + "px", border: "none", display: "block" }}
-      scrolling="no"
-      allowFullScreen
-    />
-  );
-}
-
 // ── VISTA DE ARTÍCULO ────────────────────────────────────────────
 function Articulo({ item, onVolver }) {
   if (!item) return null;
 
   const parrafos = (item.texto || "").split("\n\n").filter(Boolean);
+
+  // Inyecta el script de resize de Datawrapper para que los gráficos
+  // se adapten correctamente en móvil y tablet
+  useEffect(() => {
+    if (!item.embed) return;
+    const scriptId = "datawrapper-resize";
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://datawrapper.dwcdn.net/lib/embed.min.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      const existing = document.getElementById(scriptId);
+      if (existing) existing.remove();
+    };
+  }, [item.embed]);
 
   return (
     <div className="articulo-page">
@@ -377,7 +355,38 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-            <DatawrapperEmbed embed={item.embed} />
+            {item.embed.trim().startsWith("<")
+              ? (() => {
+                  // Extrae src y aria-label del iframe pegado desde Datawrapper
+                  const srcMatch = item.embed.match(/src="([^"]+)"/);
+                  const titleMatch = item.embed.match(/(?:title|aria-label)="([^"]+)"/);
+                  const src = srcMatch ? srcMatch[1] : null;
+                  return src ? (
+                    <iframe
+                      src={src}
+                      title={titleMatch ? titleMatch[1] : "Visualización"}
+                      width="100%"
+                      height="400"
+                      style={{ width: "100%", height: "400px", border: "none", display: "block" }}
+                      scrolling="no"
+                      frameBorder="0"
+                      allowFullScreen
+                    />
+                  ) : null;
+                })()
+              : item.embed.includes("datawrapper.dwcdn.net")
+              ? <iframe
+                  src={item.embed.trim()}
+                  title="Visualización"
+                  width="100%"
+                  height="400"
+                  style={{ width: "100%", height: "400px", border: "none", display: "block" }}
+                  scrolling="no"
+                  frameBorder="0"
+                  allowFullScreen
+                />
+              : null
+            }
           </div>
         )}
 
