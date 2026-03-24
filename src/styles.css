@@ -1053,7 +1053,7 @@ a { text-decoration: none; }
 /* ── DASHBOARD GRID ──────────────────────────────────────── */
 .dash-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
   gap: 14px;
 }
 
@@ -1163,7 +1163,10 @@ a { text-decoration: none; }
   .dash-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .dash-filtros-inner { padding: 0 1.25rem; }
   .dash-card-valor { font-size: 26px; }
+  .dash-card { padding: 1rem; }
 }
 @media (max-width: 420px) {
-  .dash-grid { grid-template-columns: 1fr; }
+  .dash-grid { grid-template-columns: 1fr; gap: 8px; }
+  .dash-card { padding: 0.9rem 1rem; border-radius: var(--radius-md); }
+  .dash-card-valor { font-size: 28px; }
 }
