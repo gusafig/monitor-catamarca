@@ -302,6 +302,45 @@ function Contenidos({ items, onVerArticulo }) {
   );
 }
 
+// ── DATAWRAPPER EMBED ────────────────────────────────────────────
+function DatawrapperEmbed({ embed }) {
+  // Extrae la URL src ya sea de una URL directa o de un código iframe
+  function getSrc(raw) {
+    const trimmed = raw.trim();
+    // URL directa
+    if (trimmed.startsWith("http") && trimmed.includes("datawrapper.dwcdn.net")) {
+      return trimmed;
+    }
+    // Código iframe: extraer src="..."
+    const match = trimmed.match(/src=["']([^"']+)["']/);
+    if (match) return match[1];
+    return null;
+  }
+
+  // Extrae la altura del atributo height del iframe original
+  function getHeight(raw) {
+    const match = raw.match(/height=["']?(\d+)["']?/);
+    return match ? parseInt(match[1], 10) : 400;
+  }
+
+  const src = getSrc(embed);
+  const height = getHeight(embed);
+
+  if (!src) return null;
+
+  return (
+    <iframe
+      src={src}
+      title="Visualización Datawrapper"
+      width="100%"
+      height={height}
+      style={{ width: "100%", height: height + "px", border: "none", display: "block" }}
+      scrolling="no"
+      allowFullScreen
+    />
+  );
+}
+
 // ── VISTA DE ARTÍCULO ────────────────────────────────────────────
 function Articulo({ item, onVolver }) {
   if (!item) return null;
@@ -338,18 +377,7 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-           {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
-  ? <iframe
-      src={item.embed.trim()}
-      title="Visualización"
-      width="100%"
-      height="400"
-      style={{width:"100%", height:"400px", border:"none", display:"block"}}
-      scrolling="no"
-      allowFullScreen
-    />
-  : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
-}
+            <DatawrapperEmbed embed={item.embed} />
           </div>
         )}
 
