@@ -329,7 +329,7 @@ a { text-decoration: none; }
 /* ── KPI GRID ────────────────────────────────────────── */
 .kpis-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
   gap: 1px;
   margin-bottom: 1.5rem;
   background: var(--border-color);
@@ -365,6 +365,13 @@ a { text-decoration: none; }
 .kpi-delta.up   { color: var(--color-up); }
 .kpi-delta.down { color: var(--color-down); }
 .kpi-delta.flat { color: var(--color-flat); }
+.kpi-periodo {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-tertiary);
+  margin-top: 0.35rem;
+  letter-spacing: 0.03em;
+}
 .kpi-skeleton {
   height: 28px;
   background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
