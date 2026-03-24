@@ -113,10 +113,25 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
   const seccion = CONFIG.secciones.find((s) => s.id === indicador.seccion);
   const color = seccion?.color || "#1D9E75";
 
-  // Último periodo disponible
-  const ultimoPeriodo = data && data.length > 0
+  // Último periodo disponible, formateado como mes/año si corresponde
+  const ultimoPeriodoRaw = data && data.length > 0
     ? (data[data.length - 1].periodo || data[data.length - 1].año || CONFIG.actualizacion)
     : CONFIG.actualizacion;
+
+  function formatPeriodo(valor) {
+    if (!valor) return CONFIG.actualizacion;
+    const str = String(valor);
+    // Formato "YYYY-M" o "YYYY-MM"
+    const match = str.match(/^(\d{4})-(\d{1,2})$/);
+    if (match) {
+      const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      const mes = meses[parseInt(match[2], 10) - 1];
+      return mes ? `${mes} ${match[1]}` : str;
+    }
+    return str;
+  }
+
+  const ultimoPeriodo = formatPeriodo(ultimoPeriodoRaw);
 
   return (
     <button
