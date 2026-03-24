@@ -455,9 +455,9 @@ function Articulo({ item, onVolver }) {
     <div className="articulo-page">
       <button className="articulo-volver" onClick={onVolver}>← Volver</button>
 
-      {item.imagen && (
+      {(item.imagen_articulo || item.imagen) && (
         <div className="articulo-portada">
-          <img src={item.imagen} alt={item.titulo} />
+          <img src={item.imagen_articulo || item.imagen} alt={item.titulo} />
         </div>
       )}
 
@@ -511,7 +511,7 @@ function Admin({ items, setItems, onSalir }) {
   const [form, setForm] = useState(formVacio());
 
   function formVacio() {
-    return { id: null, titulo: "", bajada: "", fecha: new Date().toISOString().slice(0, 10), texto: "", imagen: "", link: "", linkLabel: "", embed: "" };
+    return { id: null, titulo: "", bajada: "", fecha: new Date().toISOString().slice(0, 10), texto: "", imagen: "", imagen_articulo: "", link: "", linkLabel: "", embed: "" };
   }
 
   function login() {
@@ -584,7 +584,12 @@ function Admin({ items, setItems, onSalir }) {
             <textarea className="admin-textarea" placeholder="Escribí el contenido del artículo aquí..." value={form.texto} onChange={(e) => setForm({ ...form, texto: e.target.value })} style={{minHeight: "220px"}} />
 
             <label className="admin-label">URL de imagen de portada</label>
+            <p className="admin-hint">Aparece en el listado de contenidos.</p>
             <input className="admin-input" placeholder="https://..." value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
+
+            <label className="admin-label">URL de imagen de cabecera del artículo</label>
+            <p className="admin-hint">Aparece dentro del artículo. Si está vacía, no se muestra ninguna imagen en el artículo.</p>
+            <input className="admin-input" placeholder="https://... (opcional, puede ser diferente a la portada)" value={form.imagen_articulo || ""} onChange={(e) => setForm({ ...form, imagen_articulo: e.target.value })} />
 
             <label className="admin-label">Código embed Datawrapper</label>
             <p className="admin-hint">Pegá el código iframe que genera Datawrapper al publicar.</p>
