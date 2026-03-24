@@ -4,32 +4,41 @@ import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
 import "./styles.css";
 
-// ── DATOS INICIALES ──────────────────────────────────────────────
-const STORAGE_KEY = "synergia_contenidos";
+// ── SUPABASE ──────────────────────────────────────────────────────
+const SUPABASE_URL = "https://qhrmnzsuhuejvqtoemwz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFocm1uenN1aHVlanZxdG9lbXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjU5MDYsImV4cCI6MjA4OTk0MTkwNn0.ArQLf2kiQ4Mj1NH3chmZRt2QCM77LtUyPcvGY7F33ZQ";
 
-const CONTENIDOS_INICIALES = [
-  {
-    id: 1,
-    titulo: "Exportaciones provinciales 2025",
-    bajada: "Un análisis de la evolución de las exportaciones de Catamarca durante el último año, con foco en el sector minero y agroindustrial.",
-    fecha: "2026-03-01",
-    texto: "Las exportaciones de la provincia de Catamarca mostraron un comportamiento destacado durante 2025, impulsadas principalmente por el sector minero. La producción de litio y cobre continuó siendo el motor principal de las ventas externas, representando más del 80% del total exportado.\n\nEn términos de destinos, Asia concentró la mayor parte de las exportaciones mineras, mientras que los mercados de América del Norte y Europa absorbieron la producción agroindustrial.\n\nEl contexto macroeconómico nacional, con un tipo de cambio más estable en el segundo semestre, favoreció la planificación de largo plazo en los proyectos de inversión.",
-    imagen: "",
-    link: "",
-    linkLabel: "",
-    embed: "",
-  },
-];
+const sbHeaders = {
+  "Content-Type": "application/json",
+  "apikey": SUPABASE_KEY,
+  "Authorization": `Bearer ${SUPABASE_KEY}`,
+};
 
-function cargarContenidos() {
+async function cargarContenidos() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : CONTENIDOS_INICIALES;
-  } catch { return CONTENIDOS_INICIALES; }
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/contenidos?order=created_at.desc`,
+      { headers: sbHeaders }
+    );
+    if (!res.ok) return [];
+    return await res.json();
+  } catch { return []; }
 }
 
-function guardarContenidos(items) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch {}
+async function guardarContenido(item) {
+  // Upsert: inserta o actualiza según el id
+  await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
+    method: "POST",
+    headers: { ...sbHeaders, "Prefer": "resolution=merge-duplicates" },
+    body: JSON.stringify(item),
+  });
+}
+
+async function eliminarContenido(id) {
+  await fetch(`${SUPABASE_URL}/rest/v1/contenidos?id=eq.${id}`, {
+    method: "DELETE",
+    headers: sbHeaders,
+  });
 }
 
 function tiempoLectura(texto) {
@@ -308,23 +317,6 @@ function Articulo({ item, onVolver }) {
 
   const parrafos = (item.texto || "").split("\n\n").filter(Boolean);
 
-  // Inyecta el script de resize de Datawrapper para que los gráficos
-  // se adapten correctamente en móvil y tablet
-  useEffect(() => {
-    if (!item.embed) return;
-    const scriptId = "datawrapper-resize";
-    if (document.getElementById(scriptId)) return;
-    const script = document.createElement("script");
-    script.id = scriptId;
-    script.src = "https://datawrapper.dwcdn.net/lib/embed.min.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => {
-      const existing = document.getElementById(scriptId);
-      if (existing) existing.remove();
-    };
-  }, [item.embed]);
-
   return (
     <div className="articulo-page">
       <button className="articulo-volver" onClick={onVolver}>← Volver</button>
@@ -355,38 +347,18 @@ function Articulo({ item, onVolver }) {
 
         {item.embed && (
           <div className="articulo-viz">
-            {item.embed.trim().startsWith("<")
-              ? (() => {
-                  // Extrae src y aria-label del iframe pegado desde Datawrapper
-                  const srcMatch = item.embed.match(/src="([^"]+)"/);
-                  const titleMatch = item.embed.match(/(?:title|aria-label)="([^"]+)"/);
-                  const src = srcMatch ? srcMatch[1] : null;
-                  return src ? (
-                    <iframe
-                      src={src}
-                      title={titleMatch ? titleMatch[1] : "Visualización"}
-                      width="100%"
-                      height="400"
-                      style={{ width: "100%", height: "400px", border: "none", display: "block" }}
-                      scrolling="no"
-                      frameBorder="0"
-                      allowFullScreen
-                    />
-                  ) : null;
-                })()
-              : item.embed.includes("datawrapper.dwcdn.net")
-              ? <iframe
-                  src={item.embed.trim()}
-                  title="Visualización"
-                  width="100%"
-                  height="400"
-                  style={{ width: "100%", height: "400px", border: "none", display: "block" }}
-                  scrolling="no"
-                  frameBorder="0"
-                  allowFullScreen
-                />
-              : null
-            }
+           {item.embed.includes("datawrapper.dwcdn.net") && !item.embed.trim().startsWith("<")
+  ? <iframe
+      src={item.embed.trim()}
+      title="Visualización"
+      width="100%"
+      height="400"
+      style={{width:"100%", height:"400px", border:"none", display:"block"}}
+      scrolling="no"
+      allowFullScreen
+    />
+  : <div dangerouslySetInnerHTML={{ __html: item.embed }} />
+}
           </div>
         )}
 
@@ -424,21 +396,20 @@ function Admin({ items, setItems, onSalir }) {
   function nuevoItem() { setForm(formVacio()); setVista("form"); }
   function editarItem(item) { setForm({ ...item }); setVista("form"); }
 
-  function guardar() {
+  async function guardar() {
     if (!form.titulo.trim()) return;
-    let nuevos;
-    if (form.id) { nuevos = items.map((i) => (i.id === form.id ? { ...form } : i)); }
-    else { nuevos = [{ ...form, id: Date.now() }, ...items]; }
+    const item = form.id ? { ...form } : { ...form, id: Date.now() };
+    await guardarContenido(item);
+    const nuevos = await cargarContenidos();
     setItems(nuevos);
-    guardarContenidos(nuevos);
     setVista("lista");
   }
 
-  function eliminar(id) {
+  async function eliminar(id) {
     if (window.confirm("¿Eliminar esta publicación?")) {
-      const nuevos = items.filter((i) => i.id !== id);
+      await eliminarContenido(id);
+      const nuevos = await cargarContenidos();
       setItems(nuevos);
-      guardarContenidos(nuevos);
     }
   }
 
@@ -560,7 +531,11 @@ export default function App() {
   const [seccionMonitor, setSeccionMonitor] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [articuloId, setArticuloId] = useState(null);
-  const [items, setItems] = useState(cargarContenidos);
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    cargarContenidos().then(setItems);
+  }, []);
 
   // Detectar ruta /admin
   useEffect(() => {
