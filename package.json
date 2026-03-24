@@ -7,7 +7,8 @@
     "react-dom": "^18.2.0",
     "recharts": "^2.10.3",
     "papaparse": "^5.4.1",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "jspdf": "^2.5.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -15,7 +16,12 @@
     "test": "react-scripts test"
   },
   "browserslist": {
-    "production": [">0.2%", "not dead"],
-    "development": ["last 1 chrome version"]
+    "production": [
+      ">0.2%",
+      "not dead"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
   }
 }
