@@ -42,6 +42,22 @@ function KPICardLoader({ indicador, color }) {
   const delta = deltaPercent(data, "valor");
   const formatted = val !== null && indicador.formato ? indicador.formato(val) : val ?? "—";
 
+  const ultimoPeriodoRaw = data && data.length > 0
+    ? (data[data.length - 1].periodo || data[data.length - 1].año || null)
+    : null;
+
+  function formatPeriodo(valor) {
+    if (!valor) return null;
+    const str = String(valor);
+    const match = str.match(/^(\d{4})-(\d{1,2})$/);
+    if (match) {
+      const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      const mes = meses[parseInt(match[2], 10) - 1];
+      return mes ? `${mes} ${match[1]}` : str;
+    }
+    return str;
+  }
+
   return (
     <KPICard
       label={indicador.nombre}
@@ -50,6 +66,7 @@ function KPICardLoader({ indicador, color }) {
       color={color}
       loading={loading}
       tooltip={indicador.descripcion}
+      periodo={formatPeriodo(ultimoPeriodoRaw)}
     />
   );
 }
