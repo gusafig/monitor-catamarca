@@ -1179,3 +1179,25 @@ a { text-decoration: none; }
   .dash-card { padding: 0.9rem 1rem; border-radius: var(--radius-md); }
   .dash-card-valor { font-size: 28px; }
 }
+
+/* ── BOTÓN DESCARGA PDF ──────────────────────────────────── */
+.articulo-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-secondary);
+  background: none;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.articulo-pdf-btn:hover {
+  background: var(--color-secondary);
+  color: white;
+}
