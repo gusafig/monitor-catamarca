@@ -10,7 +10,7 @@ import React from "react";
  *   loading   — boolean
  *   tooltip   — texto descriptivo (opcional)
  */
-export function KPICard({ label, value, delta, color = "#1D9E75", loading, tooltip }) {
+export function KPICard({ label, value, delta, color = "#1D9E75", loading, tooltip, periodo }) {
   const deltaNum = parseFloat(delta);
   const isUp = deltaNum > 0;
   const isDown = deltaNum < 0;
@@ -34,6 +34,10 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
           {isUp ? "▲" : isDown ? "▼" : "—"}{" "}
           {Math.abs(deltaNum)}% i.a.
         </div>
+      )}
+
+      {!loading && periodo && (
+        <div className="kpi-periodo">{periodo}</div>
       )}
     </div>
   );
