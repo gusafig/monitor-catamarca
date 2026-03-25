@@ -73,7 +73,7 @@ function Inicio({ onNavigate }) {
             de decisiones.
           </p>
           <button className="inicio-cta" onClick={() => onNavigate("monitor")}>
-            Explorar indicadores →
+            Explorar variables →
           </button>
         </div>
         <div className="inicio-stats">
