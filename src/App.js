@@ -327,9 +327,9 @@ function Monitor({ seccionInicial }) {
     <div>
       <div className="monitor-header">
         <div className="monitor-header-inner">
-          <div>
-            <span className="header-eyebrow">Synergia Consultores</span>
-          </div>
+          <h2 className="monitor-title">
+            Dashboard de variables <span className="accent">socioeconómicas</span>
+          </h2>
           <div className="header-meta">
             <span className="header-fuente">{CONFIG.fuente}</span>
           </div>
@@ -355,9 +355,7 @@ function Contenidos({ items, onVerArticulo }) {
     <div className="contenidos-page">
       <div className="monitor-header">
         <div className="monitor-header-inner">
-          <div>
-            <span className="header-eyebrow">Synergia Consultores</span>
-          </div>
+          <h2 className="monitor-title">Publicaciones</h2>
         </div>
       </div>
 
@@ -781,7 +779,7 @@ export default function App() {
             </div>
             <nav className={"main-nav" + (menuAbierto ? " open" : "")}>
               <button
-                className={"nav-btn" + (pagina === "inicio" ? " active" : "")}
+                className={"nav-pill" + (pagina === "inicio" ? " nav-pill-active" : " nav-pill-inactive")}
                 onClick={() => navegarA("inicio")}
               >
                 Inicio
