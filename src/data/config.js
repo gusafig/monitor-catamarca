@@ -7,16 +7,16 @@
 export const CONFIG = {
   titulo: "Catamarca en datos",
   subtitulo: "Dashboard de variables socioeconómicas",
-  fuente: "Fuente: Ministerio de Economía, DNRPA, CAMMESA, Ministerio de Capital Humano, Westmetall, Contaduría General de la Provincia de Catamarca",
+  fuente: "Fuentes: Ministerio de Economía, DNRPA, CAMMESA, Ministerio de Capital Humano, Westmetall, Contaduría General de la Provincia de Catamarca",
   actualizacion: "2026",
 
   // ----------------------------------------------------------
   //  CATEGORÍAS
   // ----------------------------------------------------------
   secciones: [
-    { id: "economia_real",    label: "Economía real",       color: "#1D9E75" },
-    { id: "finanzas",         label: "Finanzas Públicas",   color: "#378ADD" },
-    { id: "cotizaciones",     label: "Cotizaciones/Otros",  color: "#EF9F27" },
+    { id: "economia_real",    label: "Economía real",       color: "#e6322e" },
+    { id: "finanzas",         label: "Finanzas Públicas",   color: "##15607a" },
+    { id: "cotizaciones",     label: "Cotizaciones/Otros",  color: "##36aeac" },
   ],
 
   // ----------------------------------------------------------
