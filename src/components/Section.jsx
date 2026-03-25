@@ -67,6 +67,7 @@ function KPICardLoader({ indicador, color }) {
       loading={loading}
       tooltip={indicador.descripcion}
       periodo={formatPeriodo(ultimoPeriodoRaw)}
+      icono={indicador.icono}
     />
   );
 }
