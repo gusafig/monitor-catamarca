@@ -27,7 +27,6 @@ async function cargarContenidos() {
 }
 
 async function guardarContenido(item) {
-  // Upsert: inserta o actualiza según el id
   await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
     method: "POST",
     headers: { ...sbHeaders, "Prefer": "resolution=merge-duplicates" },
@@ -56,8 +55,66 @@ function formatFecha(fecha) {
   });
 }
 
+// ── ÚLTIMA ACTUALIZACIÓN AUTOMÁTICA ──────────────────────────────
+function extraerUltimoPeriodoCsv(obj) {
+  if (!obj) return null;
+  const raw = obj.periodo || obj.año || obj.fecha || null;
+  if (!raw) return null;
+  const str = String(raw).trim();
+  const matchMes = str.match(/^(\d{4})-(\d{1,2})$/);
+  if (matchMes) return new Date(parseInt(matchMes[1]), parseInt(matchMes[2]) - 1, 1);
+  const matchAnio = str.match(/^(\d{4})$/);
+  if (matchAnio) return new Date(parseInt(matchAnio[1]), 11, 31);
+  const d = new Date(str);
+  if (!isNaN(d)) return d;
+  return null;
+}
+
+function formatFechaActualizacion(date) {
+  if (!date) return CONFIG.actualizacion;
+  return date.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+}
+
+function useUltimaActualizacion(items) {
+  const [fechasCsv, setFechasCsv] = useState([]);
+
+  useEffect(() => {
+    let cancelado = false;
+    const archivos = CONFIG.indicadores.map((i) => i.archivo);
+    Promise.all(
+      archivos.map((archivo) =>
+        fetch(`${process.env.PUBLIC_URL}/data/${archivo}`)
+          .then((r) => (r.ok ? r.text() : ""))
+          .then((text) => {
+            if (!text) return null;
+            const lineas = text.trim().split("\n");
+            if (lineas.length < 2) return null;
+            const headers = lineas[0].split(",").map((h) => h.trim().replace(/"/g, ""));
+            const ultima = lineas[lineas.length - 1].split(",").map((v) => v.trim().replace(/"/g, ""));
+            const obj = {};
+            headers.forEach((h, i) => { obj[h] = ultima[i]; });
+            return extraerUltimoPeriodoCsv(obj);
+          })
+          .catch(() => null)
+      )
+    ).then((fechas) => {
+      if (!cancelado) setFechasCsv(fechas.filter(Boolean));
+    });
+    return () => { cancelado = true; };
+  }, []); // eslint-disable-line
+
+  const fechasContenidos = items
+    .map((i) => (i.fecha ? new Date(i.fecha + "T12:00:00") : null))
+    .filter(Boolean);
+
+  const todas = [...fechasCsv, ...fechasContenidos];
+  if (todas.length === 0) return CONFIG.actualizacion;
+  const max = todas.reduce((a, b) => (a > b ? a : b));
+  return formatFechaActualizacion(max);
+}
+
 // ── INICIO ───────────────────────────────────────────────────────
-function Inicio({ onNavigate }) {
+function Inicio({ onNavigate, ultimaActualizacion }) {
   return (
     <div className="inicio-page">
       <div className="inicio-hero">
@@ -68,7 +125,7 @@ function Inicio({ onNavigate }) {
             <span className="inicio-headline-accent">en datos</span>
           </h1>
           <p className="inicio-desc">
-            Seguimiento sistemático de variables económicas 
+            Seguimiento sistemático de variables económicas
             de la provincia de Catamarca. Información actualizada para la toma
             de decisiones.
           </p>
@@ -78,7 +135,7 @@ function Inicio({ onNavigate }) {
         </div>
         <div className="inicio-stats">
           <div className="inicio-stat">
-            <span className="inicio-stat-num">3</span>
+            <span className="inicio-stat-num">{CONFIG.secciones.length}</span>
             <span className="inicio-stat-label">Secciones temáticas</span>
           </div>
           <div className="inicio-stat-divider" />
@@ -88,7 +145,7 @@ function Inicio({ onNavigate }) {
           </div>
           <div className="inicio-stat-divider" />
           <div className="inicio-stat">
-            <span className="inicio-stat-num">{CONFIG.actualizacion}</span>
+            <span className="inicio-stat-num inicio-stat-fecha">{ultimaActualizacion}</span>
             <span className="inicio-stat-label">Última actualización</span>
           </div>
         </div>
@@ -112,7 +169,6 @@ function Inicio({ onNavigate }) {
   );
 }
 
-
 // ── DASHBOARD CARD CON DATOS ──────────────────────────────────────
 function DashboardCardLoader({ indicador, onVerDetalle }) {
   const { data, loading } = useCsvData(indicador.archivo);
@@ -123,7 +179,6 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
   const seccion = CONFIG.secciones.find((s) => s.id === indicador.seccion);
   const color = seccion?.color || "#1D9E75";
 
-  // Último periodo disponible, formateado como mes/año si corresponde
   const ultimoPeriodoRaw = data && data.length > 0
     ? (data[data.length - 1].periodo || data[data.length - 1].año || CONFIG.actualizacion)
     : CONFIG.actualizacion;
@@ -131,7 +186,6 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
   function formatPeriodo(valor) {
     if (!valor) return CONFIG.actualizacion;
     const str = String(valor);
-    // Formato "YYYY-M" o "YYYY-MM"
     const match = str.match(/^(\d{4})-(\d{1,2})$/);
     if (match) {
       const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
@@ -196,11 +250,62 @@ function DetalleVariable({ indicador, onVolver }) {
   );
 }
 
+// ── GLOSARIO DE VARIABLES ─────────────────────────────────────────
+function GlosarioVariables() {
+  const [abierta, setAbierta] = useState(null);
+
+  return (
+    <div className="glosario-section">
+      <div className="main-inner">
+        <div className="glosario-header">
+          <h3 className="glosario-titulo">Glosario de variables</h3>
+          <p className="glosario-desc">
+            Definición, unidad y periodicidad de cada indicador incluido en el monitor.
+          </p>
+        </div>
+        <div className="glosario-lista">
+          {CONFIG.secciones.map((sec) => {
+            const vars = CONFIG.indicadores.filter((i) => i.seccion === sec.id);
+            return (
+              <div key={sec.id} className="glosario-grupo">
+                <div className="glosario-grupo-titulo" style={{ borderLeftColor: sec.color, color: sec.color }}>
+                  {sec.label}
+                </div>
+                {vars.map((v) => (
+                  <div
+                    key={v.id}
+                    className={"glosario-item" + (abierta === v.id ? " open" : "")}
+                    onClick={() => setAbierta(abierta === v.id ? null : v.id)}
+                  >
+                    <div className="glosario-item-header">
+                      <span className="glosario-item-nombre">{v.nombre}</span>
+                      <span className="glosario-item-unidad">{v.unidad}</span>
+                      <span className="glosario-item-toggle">{abierta === v.id ? "−" : "+"}</span>
+                    </div>
+                    {abierta === v.id && (
+                      <div className="glosario-item-body">
+                        <p className="glosario-item-desc">{v.descripcion || "Sin descripción disponible."}</p>
+                        <p className="glosario-item-fuente">
+                          <span className="glosario-fuente-label">Periodicidad:</span>{" "}
+                          {v.periodo === "mes" ? "Mensual" : v.periodo === "trimestre" ? "Trimestral" : v.periodo === "año" ? "Anual" : v.periodo || "—"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── MONITOR / DASHBOARD ───────────────────────────────────────────
 function Monitor({ seccionInicial }) {
-  const [vista, setVista] = useState("dashboard"); // dashboard | detalle
+  const [vista, setVista] = useState("dashboard");
   const [indicadorActivo, setIndicadorActivo] = useState(null);
-  const [filtro, setFiltro] = useState("todas");
 
   function verDetalle(indicador) {
     setIndicadorActivo(indicador);
@@ -218,55 +323,28 @@ function Monitor({ seccionInicial }) {
     return <DetalleVariable indicador={indicadorActivo} onVolver={volverDashboard} />;
   }
 
-  const indicadoresFiltrados = filtro === "todas"
-    ? CONFIG.indicadores
-    : CONFIG.indicadores.filter((i) => i.seccion === filtro);
-
   return (
     <div>
       <div className="monitor-header">
         <div className="monitor-header-inner">
           <div>
             <span className="header-eyebrow">Synergia Consultores</span>
-            <h2 className="monitor-title">
-              Dashboard de variables{" "}
-              <span className="accent">socioeconómicas</span>
-            </h2>
           </div>
           <div className="header-meta">
-            <span className="header-updated">{CONFIG.actualizacion}</span>
             <span className="header-fuente">{CONFIG.fuente}</span>
           </div>
         </div>
       </div>
 
-      <div className="dash-filtros-bar">
-        <div className="dash-filtros-inner">
-          <button
-            className={"dash-filtro-pill" + (filtro === "todas" ? " active-todas" : " inactive")}
-            onClick={() => setFiltro("todas")}
-          >
-            Todas
-          </button>
-          {CONFIG.secciones.map((s) => (
-            <button
-              key={s.id}
-              className={"dash-filtro-pill" + (filtro === s.id ? " active-seccion" : " inactive")}
-              onClick={() => setFiltro(s.id)}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "3rem" }}>
+      <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "1rem" }}>
         <div className="dash-grid">
-          {indicadoresFiltrados.map((ind) => (
+          {CONFIG.indicadores.map((ind) => (
             <DashboardCardLoader key={ind.id} indicador={ind} onVerDetalle={verDetalle} />
           ))}
         </div>
       </div>
+
+      <GlosarioVariables />
     </div>
   );
 }
@@ -279,10 +357,6 @@ function Contenidos({ items, onVerArticulo }) {
         <div className="monitor-header-inner">
           <div>
             <span className="header-eyebrow">Synergia Consultores</span>
-            <h2 className="monitor-title">
-              Publicaciones y{" "}
-              <span className="accent">contenidos</span>
-            </h2>
           </div>
         </div>
       </div>
@@ -293,27 +367,27 @@ function Contenidos({ items, onVerArticulo }) {
 
       <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "3rem" }}>
         <div className="posts-grid">
-        {items.map((item) => (
-          <article
-            key={item.id}
-            className="post-card"
-            onClick={() => onVerArticulo(item.id)}
-          >
-            {item.imagen ? (
-              <div className="post-card-img-wrap">
-                <img src={item.imagen} alt={item.titulo} className="post-card-img" />
+          {items.map((item) => (
+            <article
+              key={item.id}
+              className="post-card"
+              onClick={() => onVerArticulo(item.id)}
+            >
+              {item.imagen ? (
+                <div className="post-card-img-wrap">
+                  <img src={item.imagen} alt={item.titulo} className="post-card-img" />
+                </div>
+              ) : (
+                <div className="post-card-img-placeholder" />
+              )}
+              <div className="post-card-body">
+                <span className="post-card-fecha">{formatFecha(item.fecha)}</span>
+                <h3 className="post-card-titulo">{item.titulo}</h3>
+                {item.bajada && <p className="post-card-bajada">{item.bajada}</p>}
+                <span className="post-card-lectura">{tiempoLectura(item.texto)}</span>
               </div>
-            ) : (
-              <div className="post-card-img-placeholder" />
-            )}
-            <div className="post-card-body">
-              <span className="post-card-fecha">{formatFecha(item.fecha)}</span>
-              <h3 className="post-card-titulo">{item.titulo}</h3>
-              {item.bajada && <p className="post-card-bajada">{item.bajada}</p>}
-              <span className="post-card-lectura">{tiempoLectura(item.texto)}</span>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
         </div>
       </div>
     </div>
@@ -362,7 +436,6 @@ function Articulo({ item, onVolver }) {
     const maxW = pageW - margin * 2;
     let y = margin;
 
-    // Encabezado rojo
     doc.setFillColor(230, 50, 46);
     doc.rect(0, 0, pageW, 10, "F");
     doc.setFont("helvetica", "bold");
@@ -371,14 +444,12 @@ function Articulo({ item, onVolver }) {
     doc.text("Synergia Consultores", margin, 6.5);
     y = 22;
 
-    // Fecha
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(150, 150, 150);
     doc.text(formatFecha(item.fecha), margin, y);
     y += 8;
 
-    // Título
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(17, 17, 17);
@@ -386,7 +457,6 @@ function Articulo({ item, onVolver }) {
     doc.text(tituloLines, margin, y);
     y += tituloLines.length * 9 + 4;
 
-    // Bajada
     if (item.bajada) {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
@@ -396,13 +466,11 @@ function Articulo({ item, onVolver }) {
       y += bajadaLines.length * 6 + 4;
     }
 
-    // Separador
     doc.setDrawColor(230, 50, 46);
     doc.setLineWidth(0.8);
     doc.line(margin, y, margin + 20, y);
     y += 8;
 
-    // Cuerpo
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(34, 34, 34);
@@ -417,7 +485,6 @@ function Articulo({ item, onVolver }) {
       y += 4;
     });
 
-    // Nota embed
     if (item.embed) {
       if (y > pageH - 30) { doc.addPage(); y = margin; }
       y += 4;
@@ -438,7 +505,6 @@ function Articulo({ item, onVolver }) {
       y += 24;
     }
 
-    // Pie de página
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
@@ -515,7 +581,7 @@ function Admin({ items, setItems, onSalir }) {
   const [autenticado, setAutenticado] = useState(false);
   const [adminPass, setAdminPass] = useState("");
   const [errorPass, setErrorPass] = useState(false);
-  const [vista, setVista] = useState("lista"); // lista | form
+  const [vista, setVista] = useState("lista");
   const [form, setForm] = useState(formVacio());
 
   function formVacio() {
@@ -617,7 +683,6 @@ function Admin({ items, setItems, onSalir }) {
     );
   }
 
-  // vista === "lista"
   return (
     <div className="admin-page">
       <div className="admin-lista-page">
@@ -676,10 +741,11 @@ export default function App() {
     cargarContenidos().then(setItems);
   }, []);
 
-  // Detectar ruta /admin
   useEffect(() => {
     if (window.location.pathname === "/admin") setPagina("admin");
   }, []);
+
+  const ultimaActualizacion = useUltimaActualizacion(items);
 
   function navegarA(pag, seccion) {
     setPagina(pag);
@@ -714,9 +780,24 @@ export default function App() {
               <img src="/logo.png" alt="Synergia Consultores" className="header-logo" />
             </div>
             <nav className={"main-nav" + (menuAbierto ? " open" : "")}>
-              <button className={"nav-btn " + (pagina === "inicio" ? "active" : "")} onClick={() => navegarA("inicio")}>Inicio</button>
-              <button className={"nav-btn " + (pagina === "monitor" ? "active" : "")} onClick={() => navegarA("monitor")}>Monitor</button>
-              <button className={"nav-btn " + (["contenidos","articulo"].includes(pagina) ? "active" : "")} onClick={() => navegarA("contenidos")}>Contenidos</button>
+              <button
+                className={"nav-btn" + (pagina === "inicio" ? " active" : "")}
+                onClick={() => navegarA("inicio")}
+              >
+                Inicio
+              </button>
+              <button
+                className={"nav-pill" + (pagina === "monitor" ? " nav-pill-active" : " nav-pill-inactive")}
+                onClick={() => navegarA("monitor")}
+              >
+                Monitor
+              </button>
+              <button
+                className={"nav-pill" + (["contenidos","articulo"].includes(pagina) ? " nav-pill-active" : " nav-pill-inactive")}
+                onClick={() => navegarA("contenidos")}
+              >
+                Contenidos
+              </button>
             </nav>
             <button className="hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
               <span /><span /><span />
@@ -726,7 +807,7 @@ export default function App() {
       )}
 
       <main className="main">
-        {pagina === "inicio"     && <Inicio onNavigate={navegarA} />}
+        {pagina === "inicio"     && <Inicio onNavigate={navegarA} ultimaActualizacion={ultimaActualizacion} />}
         {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} />}
         {pagina === "contenidos" && (
           <Contenidos items={items} onVerArticulo={verArticulo} />
