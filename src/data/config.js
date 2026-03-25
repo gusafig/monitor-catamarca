@@ -7,7 +7,6 @@
 export const CONFIG = {
   titulo: "Catamarca en datos",
   subtitulo: "Dashboard de variables socioeconómicas",
-  fuente: "Fuentes: Ministerio de Economía, DNRPA, CAMMESA, Ministerio de Capital Humano, Westmetall, Contaduría General de la Provincia de Catamarca",
   actualizacion: "2026",
 
   // ----------------------------------------------------------
