@@ -1308,10 +1308,11 @@ a { text-decoration: none; }
   color: var(--text-secondary);
 }
 
-/* Inicio: fecha de actualización en tamaño reducido */
+/* Inicio: fecha de actualización */
 .inicio-stat-fecha {
-  font-size: clamp(11px, 2vw, 15px) !important;
-  letter-spacing: -0.01em;
+  font-size: clamp(16px, 2.5vw, 22px) !important;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 /* Responsive nav-pill en móvil */
