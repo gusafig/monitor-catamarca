@@ -390,6 +390,16 @@ a { text-decoration: none; }
   animation: shimmer 1.4s infinite;
   border-radius: var(--radius-sm);
 }
+.kpi-icono {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+.kpi-icono-svg {
+  width: 22px;
+  height: 22px;
+  opacity: 0.85;
+}
 
 /* ── CHARTS GRID ─────────────────────────────────────── */
 .charts-grid {
@@ -469,7 +479,7 @@ a { text-decoration: none; }
 }
 
 /* ── CONTENIDOS ──────────────────────────────────────── */
-.contenidos-page { padding: 2rem 0; }
+.contenidos-page { padding: 0; }
 .contenidos-header {
   display: flex;
   align-items: center;
@@ -987,6 +997,7 @@ a { text-decoration: none; }
 }
 
 /* ── DASHBOARD FILTROS ───────────────────────────────── */
+/* ── DASHBOARD FILTROS ───────────────────────────────── */
 .dash-filtros-bar {
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
@@ -994,36 +1005,38 @@ a { text-decoration: none; }
 .dash-filtros-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0.75rem 2rem;
   display: flex;
-  gap: 4px;
+  gap: 8px;
   overflow-x: auto;
+  flex-wrap: wrap;
 }
-.dash-filtro-btn {
+.dash-filtro-pill {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 500;
-  color: var(--text-tertiary);
-  background: transparent;
+  font-weight: 600;
   border: none;
-  border-bottom: 2px solid transparent;
-  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s, border-color 0.15s;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.01em;
 }
-.dash-filtro-btn:hover { color: var(--text-primary); }
-.dash-filtro-btn.active {
-  color: var(--filtro-color, var(--text-primary));
-  border-bottom-color: var(--filtro-color, var(--text-primary));
-  font-weight: 600;
+.dash-filtro-pill:hover { opacity: 0.85; transform: translateY(-1px); }
+.dash-filtro-pill.active-todas {
+  background: #15607a;
+  color: #ffffff;
 }
-.dash-filtro-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.dash-filtro-pill.active-seccion {
+  background: #15607a;
+  color: #ffffff;
+}
+.dash-filtro-pill.inactive {
+  background: #e6322e;
+  color: #ffffff;
 }
 
 /* ── DASHBOARD GRID ──────────────────────────────────── */
