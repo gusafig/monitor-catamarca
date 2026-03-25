@@ -8,7 +8,6 @@ export const CONFIG = {
   titulo: "Catamarca en datos",
   subtitulo: "Dashboard de variables socioeconómicas",
  
-
   // ----------------------------------------------------------
   //  CATEGORÍAS
   // ----------------------------------------------------------
