@@ -76,7 +76,7 @@ a { text-decoration: none; }
 }
 
 /* ── NAV ─────────────────────────────────────────────── */
-.main-nav { display: flex; gap: 2px; align-items: center; }
+.main-nav { display: flex; gap: 6px; align-items: center; }
 .nav-btn {
   font-size: 13px;
   font-weight: 400;
@@ -91,6 +91,28 @@ a { text-decoration: none; }
 .nav-btn.active {
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Botones de navegación con contenedor coloreado */
+.nav-pill {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.nav-pill:hover { opacity: 0.85; transform: translateY(-1px); }
+.nav-pill-active {
+  background: #15607a;
+  color: #ffffff;
+}
+.nav-pill-inactive {
+  background: #e6322e;
+  color: #ffffff;
 }
 
 /* ── HAMBURGER ───────────────────────────────────────── */
@@ -676,9 +698,10 @@ a { text-decoration: none; }
   .footer-brand { justify-content: flex-start; }
   .footer-mail { text-align: left; }
   .footer-copy { text-align: left; }
-  .main-nav { display: none; flex-direction: column; position: absolute; top: var(--header-h); left: 0; right: 0; background: white; border-bottom: 1px solid var(--border-color); padding: 1rem; gap: 0; }
+  .main-nav { display: none; flex-direction: column; position: absolute; top: var(--header-h); left: 0; right: 0; background: white; border-bottom: 1px solid var(--border-color); padding: 1rem; gap: 6px; }
   .main-nav.open { display: flex; }
   .nav-btn { padding: 0.75rem 1rem; width: 100%; text-align: left; }
+  .nav-pill { width: 100%; text-align: left; border-radius: 6px; }
   .hamburger { display: flex; }
   .header-inner { position: relative; }
   .main-inner { padding: 0 1.25rem; }
@@ -1177,4 +1200,122 @@ a { text-decoration: none; }
 .articulo-pdf-btn:hover {
   background: var(--color-secondary);
   color: white;
+}
+
+/* ── GLOSARIO DE VARIABLES ───────────────────────────── */
+.glosario-section {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 2.5rem 0 3rem;
+  margin-top: 1rem;
+}
+.glosario-header {
+  margin-bottom: 1.75rem;
+}
+.glosario-titulo {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+.glosario-desc {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+.glosario-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+  gap: 1.5rem 2rem;
+}
+.glosario-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.glosario-grupo-titulo {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0 0 0.5rem 0.75rem;
+  border-left: 3px solid currentColor;
+  margin-bottom: 0.25rem;
+}
+.glosario-item {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+.glosario-item:hover {
+  border-color: #ccc;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.glosario-item.open {
+  border-color: #bbb;
+}
+.glosario-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+.glosario-item-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+.glosario-item-unidad {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  background: var(--bg-secondary);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.glosario-item-toggle {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+}
+.glosario-item-body {
+  padding: 0 1rem 0.85rem;
+  border-top: 1px solid var(--border-color);
+  margin: 0 0.25rem;
+  padding-top: 0.75rem;
+}
+.glosario-item-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin-bottom: 0.5rem;
+}
+.glosario-item-fuente {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+.glosario-fuente-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Inicio: fecha de actualización en tamaño reducido */
+.inicio-stat-fecha {
+  font-size: clamp(11px, 2vw, 15px) !important;
+  letter-spacing: -0.01em;
+}
+
+/* Responsive nav-pill en móvil */
+@media (max-width: 640px) {
+  .nav-pill { padding: 0.4rem 0.75rem; font-size: 12px; }
+  .glosario-lista { grid-template-columns: 1fr; }
 }
