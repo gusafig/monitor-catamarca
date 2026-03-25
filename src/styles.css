@@ -143,7 +143,7 @@ a { text-decoration: none; }
   content: "";
   position: absolute;
   inset: 0;
-  background: url('%PUBLIC_URL%/hero-bg.jpg') center center / cover no-repeat;
+  background: url('./hero-bg.jpg') center center / cover no-repeat;
   filter: brightness(0.18) saturate(0.5);
   z-index: 0;
 }
