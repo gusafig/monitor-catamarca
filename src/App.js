@@ -65,10 +65,10 @@ function Inicio({ onNavigate }) {
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
           <h1 className="inicio-headline">
             Catamarca<br />
-            <span className="inicio-headline-accent">en datos.</span>
+            <span className="inicio-headline-accent">en datos</span>
           </h1>
           <p className="inicio-desc">
-            Seguimiento sistemático de indicadores económicos, mineros y sociales
+            Seguimiento sistemático de variables económicas 
             de la provincia de Catamarca. Información actualizada para la toma
             de decisiones.
           </p>
