@@ -234,7 +234,7 @@ function Monitor({ seccionInicial }) {
             </h2>
           </div>
           <div className="header-meta">
-            <span className="header-updated">Actualizado: {CONFIG.actualizacion}</span>
+            <span className="header-updated">{CONFIG.actualizacion}</span>
             <span className="header-fuente">{CONFIG.fuente}</span>
           </div>
         </div>
@@ -243,7 +243,7 @@ function Monitor({ seccionInicial }) {
       <div className="dash-filtros-bar">
         <div className="dash-filtros-inner">
           <button
-            className={"dash-filtro-btn" + (filtro === "todas" ? " active" : "")}
+            className={"dash-filtro-pill" + (filtro === "todas" ? " active-todas" : " inactive")}
             onClick={() => setFiltro("todas")}
           >
             Todas
@@ -251,11 +251,9 @@ function Monitor({ seccionInicial }) {
           {CONFIG.secciones.map((s) => (
             <button
               key={s.id}
-              className={"dash-filtro-btn" + (filtro === s.id ? " active" : "")}
-              style={filtro === s.id ? { "--filtro-color": s.color } : {}}
+              className={"dash-filtro-pill" + (filtro === s.id ? " active-seccion" : " inactive")}
               onClick={() => setFiltro(s.id)}
             >
-              <span className="dash-filtro-dot" style={{ background: s.color }} />
               {s.label}
             </button>
           ))}
@@ -277,15 +275,24 @@ function Monitor({ seccionInicial }) {
 function Contenidos({ items, onVerArticulo }) {
   return (
     <div className="contenidos-page">
-      <div className="contenidos-header">
-        <h2 className="contenidos-titulo">Contenidos</h2>
+      <div className="monitor-header">
+        <div className="monitor-header-inner">
+          <div>
+            <span className="header-eyebrow">Synergia Consultores</span>
+            <h2 className="monitor-title">
+              Publicaciones y{" "}
+              <span className="accent">contenidos</span>
+            </h2>
+          </div>
+        </div>
       </div>
 
       {items.length === 0 && (
-        <p className="informes-empty">No hay publicaciones aún.</p>
+        <p className="informes-empty" style={{ padding: "2rem" }}>No hay publicaciones aún.</p>
       )}
 
-      <div className="posts-grid">
+      <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "3rem" }}>
+        <div className="posts-grid">
         {items.map((item) => (
           <article
             key={item.id}
@@ -307,6 +314,7 @@ function Contenidos({ items, onVerArticulo }) {
             </div>
           </article>
         ))}
+        </div>
       </div>
     </div>
   );
@@ -721,9 +729,7 @@ export default function App() {
         {pagina === "inicio"     && <Inicio onNavigate={navegarA} />}
         {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} />}
         {pagina === "contenidos" && (
-          <div className="main-inner">
-            <Contenidos items={items} onVerArticulo={verArticulo} />
-          </div>
+          <Contenidos items={items} onVerArticulo={verArticulo} />
         )}
         {pagina === "articulo"   && <Articulo item={articuloActual} onVolver={volverDeArticulo} />}
         {pagina === "admin"      && (
