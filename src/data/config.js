@@ -7,7 +7,9 @@
 export const CONFIG = {
   titulo: "Catamarca en datos",
   subtitulo: "Dashboard de variables socioeconómicas",
- 
+  fuente: "Fuentes: Ministerio de Economía, DNRPA, CAMMESA, Ministerio de Capital Humano, Westmetall, Contaduría General de la Provincia de Catamarca",
+  actualizacion: "2026",
+
   // ----------------------------------------------------------
   //  CATEGORÍAS
   // ----------------------------------------------------------
@@ -36,6 +38,7 @@ export const CONFIG = {
       archivo: "automotores.csv",
       tipo: "linea",
       kpi: true,
+      icono: "auto",
       formato: (v) => `${v}`,
       periodo: "mes",
       descripcion: "Patentamiento mensual de automotores en Catamarca.",
