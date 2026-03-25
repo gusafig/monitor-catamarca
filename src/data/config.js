@@ -16,7 +16,7 @@ export const CONFIG = {
   secciones: [
     { id: "economia_real",    label: "Economía real",       color: "#e6322e" },
     { id: "finanzas",         label: "Finanzas Públicas",   color: "#15607a" },
-    { id: "cotizaciones",     label: "Cotizaciones/Otros",  color: "#36aeac" },
+    { id: "cotizaciones",     label: "Cotizaciones / Otros",  color: "#36aeac" },
   ],
 
   // ----------------------------------------------------------
