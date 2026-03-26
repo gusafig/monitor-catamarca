@@ -40,7 +40,7 @@ export const CONFIG = {
       icono: "auto",
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Patentamiento mensual de automotores en Catamarca.",
+      descripcion: "Patentamiento mensual de automotores en Catamarca. Fuente: DNRPA",
       fuente: "DNRPA",
     },
     {
