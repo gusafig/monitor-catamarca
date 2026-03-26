@@ -1,6 +1,7 @@
 import React from "react";
 import { KPICard } from "./KPICard";
 import { ChartCard } from "./ChartCard";
+import { SeasonChart } from "./SeasonChart";
 import { useCsvData, lastValue, deltaPercent } from "../hooks/useCsvData";
 import { CONFIG, COLORES } from "../data/config";
 
@@ -72,9 +73,19 @@ function KPICardLoader({ indicador, color }) {
   );
 }
 
-/* Carga datos y renderiza un ChartCard */
+/* Carga datos y renderiza un ChartCard o SeasonChart */
 function ChartLoader({ indicador, seccionId }) {
   const { data, loading } = useCsvData(indicador.archivo);
+
+  if (indicador.tipo === "temporadas") {
+    return (
+      <SeasonChart
+        nombre={indicador.nombre}
+        unidad={indicador.unidad}
+        seccion={seccionId}
+      />
+    );
+  }
 
   return (
     <ChartCard
