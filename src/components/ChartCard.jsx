@@ -20,6 +20,9 @@ const TOOLTIP_STYLE = {
 const AXIS_STYLE = { fontSize: 11, fill: "var(--text-secondary)", fontFamily: "'DM Mono', monospace" };
 const GRID_COLOR = "rgba(136,135,128,0.18)";
 
+const fmt = (v) =>
+  Number(v).toLocaleString("es-AR", { maximumFractionDigits: 2 });
+
 /**
  * Componente universal de gráfico.
  * Props:
@@ -62,7 +65,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v} ${unidad}`, nombre]} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
               <Line
                 type="monotone" dataKey="valor"
                 stroke={colores.primario} strokeWidth={2}
@@ -87,7 +90,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v} ${unidad}`, nombre]} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
               <Area
                 type="monotone" dataKey="valor"
                 stroke={colores.primario} strokeWidth={2}
@@ -105,7 +108,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v} ${unidad}`, nombre]} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
               <Bar dataKey="valor" fill={colores.primario} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
