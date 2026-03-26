@@ -23,6 +23,9 @@ const AXIS_STYLE = {
 
 const GRID_COLOR = "rgba(136,135,128,0.18)";
 
+const fmt = (v) =>
+  Number(v).toLocaleString("es-AR", { maximumFractionDigits: 2 });
+
 // Paleta de colores para cada temporada
 const SEASON_COLORS = [
   "#1D9E75", "#378ADD", "#EF9F27", "#E05C5C",
@@ -70,7 +73,7 @@ export function SeasonChart({ nombre, unidad, seccion }) {
           <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} unit={` ${unidad || ""}`} width={70} />
           <Tooltip
             contentStyle={TOOLTIP_STYLE}
-            formatter={(v, name) => [`${v} ${unidad || ""}`, name]}
+            formatter={(v, name) => [`${fmt(v)} ${unidad || ""}`, name]}
             labelFormatter={(label) => `Semana ${label}`}
           />
           <Legend
