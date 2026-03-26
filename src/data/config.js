@@ -57,14 +57,14 @@ export const CONFIG = {
     {
       id: "variable3",
       seccion: "economia_real",
-      nombre: "Variable 3",
-      unidad: "unidad",
-      archivo: "variable3.csv",
+      nombre: "Empleo registrado privado",
+      unidad: "miles de trabajadores",
+      archivo: "empleo.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => `${v}`,
-      periodo: "año",
-      descripcion: "Descripción de la variable 3.",
+      periodo: "mes",
+      descripcion: "Asalariados privados registrados en el SIPA .",
     },
 
     // ── FINANZAS PÚBLICAS ─────────────────────────────────────
