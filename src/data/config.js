@@ -71,14 +71,14 @@ export const CONFIG = {
     {
       id: "variable4",
       seccion: "finanzas",
-      nombre: "Variable 4",
-      unidad: "unidad",
-      archivo: "variable4.csv",
+      nombre: "Ingresos tributarios de origen nacioanl a precios constantes",
+      unidad: "millones de pesos de febrero 2026",
+      archivo: "ingtribnac.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Descripción de la variable 4.",
+      descripcion: "Ingresos tributarios de origen nacional por coparticipaciòn y leyes especiales deflactados por IPC NOA. Fuentes: Ministerio de Economía e INDEC.",
     },
     {
       id: "variable5",
