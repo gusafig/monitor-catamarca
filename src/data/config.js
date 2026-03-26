@@ -41,6 +41,7 @@ export const CONFIG = {
       formato: (v) => `${v}`,
       periodo: "mes",
       descripcion: "Patentamiento mensual de automotores en Catamarca.",
+      fuente: "DNRPA",
     },
     {
       id: "variable2",
