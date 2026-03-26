@@ -109,14 +109,14 @@ export const CONFIG = {
     {
       id: "variable7",
       seccion: "cotizaciones",
-      nombre: "Variable 7",
-      unidad: "unidad",
+      nombre: "Cotización del cobre refinado",
+      unidad: "dólares por tonelada",
       archivo: "variable7.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Descripción de la variable 7.",
+      descripcion: "Cotización promedio mensual del cátodo de cobre grado A. Fuente: Westmetall.",
     },
     {
       id: "variable8",
