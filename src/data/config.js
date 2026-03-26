@@ -40,8 +40,7 @@ export const CONFIG = {
       icono: "auto",
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Patentamiento mensual de automotores en Catamarca. Fuente: DNRPA",
-      fuente: "DNRPA",
+      descripcion: "Patentamiento mensual de automotores en Catamarca. Fuente: DNRPA.",
     },
     {
       id: "variable2",
@@ -53,7 +52,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Patentamiento mensual de motos en Catamarca..",
+      descripcion: "Patentamiento mensual de motos en Catamarca. Fuente: DNRPA.",
     },
     {
       id: "variable3",
@@ -65,7 +64,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => `${v}`,
       periodo: "mes",
-      descripcion: "Asalariados privados registrados en el SIPA .",
+      descripcion: "Asalariados privados registrados en el SIPA. Fuente: Ministerio de Capital Humano.",
     },
 
     // ── FINANZAS PÚBLICAS ─────────────────────────────────────
