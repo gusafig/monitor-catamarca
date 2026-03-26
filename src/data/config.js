@@ -107,6 +107,19 @@ export const CONFIG = {
 
     // ── COTIZACIONES / OTROS ──────────────────────────────────
     {
+      id: "aceite_oliva",
+      seccion: "cotizaciones",
+      nombre: "Cotización del aceite de oliva",
+      unidad: "USD/tonelada",
+      archivo: "aceite_oliva.csv",
+      tipo: "linea",
+      kpi: true,
+      icono: "cotizacion",
+      formato: (v) => `${v}`,
+      periodo: "semana",
+      descripcion: "Cotización semanal del aceite de oliva en dólares por tonelada.",
+    },
+    {
       id: "variable7",
       seccion: "cotizaciones",
       nombre: "Cotización del cobre refinado",
