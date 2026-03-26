@@ -109,14 +109,14 @@ export const CONFIG = {
     {
       id: "aceite_oliva",
       seccion: "cotizaciones",
-      nombre: "Cotización del aceite de oliva por temporada",
-      unidad: "USD/tonelada",
+      nombre: "Cotización del aceite de oliva extra virgen",
+      unidad: "euros/100 kg",
       archivo: "aceite_oliva_temporadas.csv",
       tipo: "temporadas",
       kpi: false,
       formato: (v) => `${v}`,
       periodo: "semana",
-      descripcion: "Cotización semanal del aceite de oliva en dólares por tonelada, comparada por temporada.",
+      descripcion: "Cotización semanal del aceite de oliva extra virgen en Jaén (España). Fuente: Comisión Europea.",
     },
     {
       id: "variable7",
