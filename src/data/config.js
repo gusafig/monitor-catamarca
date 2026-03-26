@@ -111,7 +111,7 @@ export const CONFIG = {
       seccion: "cotizaciones",
       nombre: "Cotización del cobre refinado",
       unidad: "dólares por tonelada",
-      archivo: "variable7.csv",
+      archivo: "cobre.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => `${v}`,
