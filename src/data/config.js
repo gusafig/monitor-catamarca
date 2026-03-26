@@ -73,7 +73,7 @@ export const CONFIG = {
       seccion: "finanzas",
       nombre: "Ingresos tributarios de origen nacioanl a precios constantes",
       unidad: "millones de pesos de febrero 2026",
-      archivo: "ingtribnac.csv",
+      archivo: "ingresostribnac.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => `${v}`,
