@@ -71,7 +71,7 @@ export const CONFIG = {
     {
       id: "variable4",
       seccion: "finanzas",
-      nombre: "Ingresos tributarios de origen nacioanl a precios constantes",
+      nombre: "Ingresos tributarios de origen nacional a precios constantes",
       unidad: "millones de pesos de febrero 2026",
       archivo: "ingresostribnac.csv",
       tipo: "linea",
