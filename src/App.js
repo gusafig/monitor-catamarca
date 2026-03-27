@@ -845,7 +845,6 @@ function Admin({ items, setItems, onSalir }) {
 
 
 // ── PANEL ADMIN ───────────────────────────────────────────────────
-const PASSWORD = "synergia2026";
 
 function Admin({ items, setItems, onSalir }) {
   const [autenticado, setAutenticado] = useState(false);
