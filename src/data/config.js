@@ -79,7 +79,6 @@ export const CONFIG = {
       descripcion: "Despachos de gas oil a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
     },
     
-
     
  {
       id: "variable3",
@@ -126,7 +125,7 @@ export const CONFIG = {
       nombre: "Gastos corrientes del gobierno provincial a precios constantes",
       unidad: "millones de pesos de febrero 2026",
       archivo: "gtoscorrientes.csv",
-      tipo: "area",
+      tipo: "linea",
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
