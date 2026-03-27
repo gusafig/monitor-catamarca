@@ -164,8 +164,8 @@ export const CONFIG = {
       // la agregación automática por promedio mensual en Section.jsx
       id: "variable8",
       seccion: "cotizaciones",
-      nombre: "Cotización del litio (carbonato)",
-      unidad: "USD/tonelada",
+      nombre: "Cotización del carbonato de litio",
+      unidad: "USD/kg.",
       archivo: "litio.csv",
       tipo: "linea",
       kpi: true,
@@ -173,7 +173,7 @@ export const CONFIG = {
       variacion: "interanual",
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Cotización promedio mensual del carbonato de litio. Elaboración propia a partir de datos diarios.",
+      descripcion: "Cotización promedio mensual del carbonato de litio (Lithium Carbonate 99.5%min FOB South America). Elaboración propia a partir de datos diarios. Fuente: Banco Central de Chile.",
     },
   ],
 };
