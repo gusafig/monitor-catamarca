@@ -19,14 +19,14 @@ const TOOLTIP_STYLE = {
   lineHeight: "1.9",
 };
 
-const CustomTooltip = ({ active, payload, label, unidad }) => {
+const CustomTooltip = ({ active, payload, label, unidad, color }) => {
   if (!active || !payload || !payload.length) return null;
   return (
     <div style={TOOLTIP_STYLE}>
-      <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{label}</div>
+      <div style={{ color: "var(--text-secondary)", marginBottom: 4, fontSize: 11 }}>{label}</div>
       {payload.map((entry, i) => (
         <div key={i}>
-          <span style={{ color: entry.color, fontWeight: 500 }}>{entry.name}</span>
+          <span style={{ color: color || entry.color, fontWeight: 500 }}>{entry.name}</span>
           <br />
           <span style={{ color: "#333", fontWeight: 600 }}>
             {fmt(entry.value)}{unidad ? ` ${unidad}` : ""}
@@ -55,15 +55,13 @@ const fmt = (v) =>
  *   series     — para gráficos multi-serie: [{ key, nombre, color }]
  */
 export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series }) {
-  const colores = COLORES[seccion] || COLORES.economia;
+  const colores = COLORES[seccion] || COLORES.economia_real;
 
   const renderChart = () => {
     if (loading) return <div className="chart-skeleton" />;
     if (!data || data.length === 0)
       return <div className="chart-empty">Sin datos — cargá el CSV correspondiente</div>;
 
-    // Detecta dinámicamente la columna del eje X: busca "periodo", "año" o
-    // cualquier columna que no sea "valor" como fallback.
     const COLUMNAS_X = ["periodo", "año", "date", "fecha", "trimestre", "mes"];
     const primeraFila = data[0] || {};
     const xKey =
@@ -85,9 +83,9 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
               <Line
-                type="monotone" dataKey="valor"
+                type="monotone" dataKey="valor" name={nombre}
                 stroke={colores.primario} strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -110,9 +108,9 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
               <Area
-                type="monotone" dataKey="valor"
+                type="monotone" dataKey="valor" name={nombre}
                 stroke={colores.primario} strokeWidth={2}
                 fill={`url(#grad-${seccion})`}
               />
@@ -128,8 +126,8 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
-              <Bar dataKey="valor" fill={colores.primario} radius={[4, 4, 0, 0]} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
+              <Bar dataKey="valor" name={nombre} fill={colores.primario} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         );
@@ -143,7 +141,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
               <Legend
                 iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }}
@@ -169,7 +167,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
               <Legend iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }} />
               {cols.map((s) => (
@@ -194,7 +192,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
                   <Cell key={i} fill={cols[i % cols.length]?.color || colores.primario} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip unidad={unidad} />} />
+              <Tooltip content={<CustomTooltip unidad={unidad} color={colores.primario} />} />
               <Legend iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }} />
             </PieChart>
