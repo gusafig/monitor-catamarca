@@ -145,7 +145,7 @@ export const CONFIG = {
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "semana",
       descripcion: "Cotización semanal del aceite de oliva extra virgen en Jaén (España). Fuente: Comisión Europea. Nota: la temporada comprende desde octubre hasta septiembre del año siguiente.",
-      Nota: 
+    
     },
     {
       id: "variable7",
