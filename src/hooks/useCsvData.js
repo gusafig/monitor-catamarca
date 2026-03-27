@@ -53,7 +53,8 @@ export function lastValue(data, campo = "valor") {
 }
 
 /**
- * Calcula la variación porcentual entre el último y el anteúltimo valor.
+ * Calcula la variación porcentual entre el último y el anteúltimo valor
+ * (variación mensual / respecto al período anterior).
  */
 export function deltaPercent(data, campo = "valor") {
   if (!data || data.length < 2) return null;
@@ -61,4 +62,49 @@ export function deltaPercent(data, campo = "valor") {
   const curr = data[data.length - 1][campo];
   if (!prev || prev === 0) return null;
   return (((curr - prev) / Math.abs(prev)) * 100).toFixed(1);
+}
+
+/**
+ * Calcula la variación porcentual interanual:
+ * compara el último valor con el valor de hace 12 períodos.
+ */
+export function deltaPercentAnual(data, campo = "valor") {
+  if (!data || data.length < 13) return null;
+  const prev = data[data.length - 13][campo];
+  const curr = data[data.length - 1][campo];
+  if (!prev || prev === 0) return null;
+  return (((curr - prev) / Math.abs(prev)) * 100).toFixed(1);
+}
+
+/**
+ * Agrupa datos diarios en promedios mensuales.
+ * Útil para CSVs con una fila por día (ej: litio).
+ * Espera filas con formato de período: "YYYY-M-D"
+ */
+export function agruparPorMes(data, campo = "valor") {
+  if (!data || data.length === 0) return [];
+  const mapa = {};
+  data.forEach((row) => {
+    const periodoRaw = String(
+      row.periodo || row.fecha || row.date || ""
+    ).trim();
+    const partes = periodoRaw.split("-");
+    if (partes.length >= 2) {
+      const ym = `${partes[0]}-${parseInt(partes[1], 10)}`;
+      if (!mapa[ym]) mapa[ym] = [];
+      const v = parseFloat(row[campo]);
+      if (!isNaN(v)) mapa[ym].push(v);
+    }
+  });
+
+  return Object.entries(mapa)
+    .sort(([a], [b]) => {
+      const [ay, am] = a.split("-").map(Number);
+      const [by, bm] = b.split("-").map(Number);
+      return ay !== by ? ay - by : am - bm;
+    })
+    .map(([periodo, vals]) => ({
+      periodo,
+      valor: vals.reduce((s, v) => s + v, 0) / vals.length,
+    }));
 }
