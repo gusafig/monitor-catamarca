@@ -71,7 +71,7 @@ export const CONFIG = {
       seccion: "economia_real",
       nombre: "Despachos de gas oil",
       unidad: "metros cúbicos",
-      archivo: "gas oil.csv",
+      archivo: "gasoil.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
