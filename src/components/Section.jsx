@@ -2,7 +2,7 @@ import React from "react";
 import { KPICard } from "./KPICard";
 import { ChartCard } from "./ChartCard";
 import { SeasonChart } from "./SeasonChart";
-import { useCsvData, lastValue, deltaPercent } from "../hooks/useCsvData";
+import { useCsvData, lastValue, deltaPercent, deltaPercentAnual, agruparPorMes } from "../hooks/useCsvData";
 import { CONFIG, COLORES } from "../data/config";
 
 /**
@@ -39,13 +39,24 @@ export function Section({ seccionId, soloIndicador }) {
 /* Carga datos y renderiza un KPICard */
 function KPICardLoader({ indicador, color }) {
   const { data, loading } = useCsvData(indicador.archivo);
-  const val = lastValue(data, "valor");
-  const delta = deltaPercent(data, "valor");
+
+  // Si los datos son diarios, agruparlos por mes antes de operar
+  const dataFinal = indicador.frecuencia === "diaria" ? agruparPorMes(data) : data;
+
+  const val = lastValue(dataFinal, "valor");
+
+  // Usar variación interanual para cotizaciones, mensual para el resto
+  const delta =
+    indicador.variacion === "interanual"
+      ? deltaPercentAnual(dataFinal, "valor")
+      : deltaPercent(dataFinal, "valor");
+
   const formatted = val !== null && indicador.formato ? indicador.formato(val) : val ?? "—";
 
-  const ultimoPeriodoRaw = data && data.length > 0
-    ? (data[data.length - 1].periodo || data[data.length - 1].año || null)
-    : null;
+  const ultimoPeriodoRaw =
+    dataFinal && dataFinal.length > 0
+      ? dataFinal[dataFinal.length - 1].periodo || dataFinal[dataFinal.length - 1].año || null
+      : null;
 
   function formatPeriodo(valor) {
     if (!valor) return null;
@@ -87,10 +98,13 @@ function ChartLoader({ indicador, seccionId }) {
     );
   }
 
+  // Si los datos son diarios, agruparlos por mes para el gráfico
+  const dataFinal = indicador.frecuencia === "diaria" ? agruparPorMes(data) : data;
+
   return (
     <ChartCard
       tipo={indicador.tipo}
-      data={data}
+      data={dataFinal}
       seccion={seccionId}
       nombre={indicador.nombre}
       unidad={indicador.unidad}
