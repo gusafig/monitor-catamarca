@@ -1320,3 +1320,108 @@ a { text-decoration: none; }
   .nav-pill { padding: 0.4rem 0.75rem; font-size: 12px; }
   .glosario-lista { grid-template-columns: 1fr; }
 }
+
+/* ── EDITOR DE BLOQUES (Admin) ──────────────────────────────────── */
+.admin-bloques {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.admin-bloque {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-primary);
+  transition: box-shadow 0.15s;
+}
+
+.admin-bloque:focus-within {
+  box-shadow: 0 0 0 2px rgba(21,96,122,0.18);
+  border-color: #15607a;
+}
+
+.admin-bloque-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  gap: 0.5rem;
+}
+
+.admin-bloque-tipo {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
+.admin-bloque-acciones {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.admin-bloque-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 0.2rem 0.5rem;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  transition: background 0.12s, color 0.12s;
+}
+
+.admin-bloque-btn:hover:not(:disabled) {
+  background: #e8f0f4;
+  color: #15607a;
+  border-color: #15607a;
+}
+
+.admin-bloque-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.admin-bloque-btn-del:hover:not(:disabled) {
+  background: #fdecea;
+  color: #e6322e;
+  border-color: #e6322e;
+}
+
+.admin-bloque .admin-textarea {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  resize: vertical;
+}
+
+.admin-bloques-agregar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+}
+
+/* ── BLOQUES EN ARTÍCULO (vista pública) ────────────────────────── */
+.articulo-bloques {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.articulo-bloques .articulo-cuerpo {
+  margin: 0;
+}
+
+.articulo-bloques .articulo-viz {
+  margin: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
