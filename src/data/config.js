@@ -55,6 +55,7 @@ export const CONFIG = {
       descripcion: "Patentamiento mensual de motos en Catamarca. Fuente: DNRPA.",
     },
     {
+      id: "variable9",
       seccion: "economia_real",
       nombre: "Despachos de naftas",
       unidad: "metros cúbicos",
@@ -66,6 +67,7 @@ export const CONFIG = {
       descripcion: "Despachos de naftas a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
     },
 {
+      id: "variable10",
       seccion: "economia_real",
       nombre: "Despachos de gas oil",
       unidad: "metros cúbicos",
