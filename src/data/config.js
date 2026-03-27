@@ -165,7 +165,7 @@ export const CONFIG = {
       id: "variable8",
       seccion: "cotizaciones",
       nombre: "Cotización del carbonato de litio",
-      unidad: "USD/kg.",
+      unidad: "dólares por kg",
       archivo: "litio.csv",
       tipo: "linea",
       kpi: true,
