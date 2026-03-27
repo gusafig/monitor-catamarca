@@ -15,6 +15,26 @@ const TOOLTIP_STYLE = {
   borderRadius: 8,
   fontSize: 12,
   fontFamily: "'Syne', sans-serif",
+  padding: "8px 12px",
+  lineHeight: "1.9",
+};
+
+const CustomTooltip = ({ active, payload, label, unidad }) => {
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div style={TOOLTIP_STYLE}>
+      <div style={{ color: "var(--text-secondary)", marginBottom: 4 }}>{label}</div>
+      {payload.map((entry, i) => (
+        <div key={i}>
+          <span style={{ color: entry.color, fontWeight: 500 }}>{entry.name}</span>
+          <br />
+          <span style={{ color: "#333", fontWeight: 600 }}>
+            {fmt(entry.value)}{unidad ? ` ${unidad}` : ""}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const AXIS_STYLE = { fontSize: 11, fill: "var(--text-secondary)", fontFamily: "'DM Mono', monospace" };
@@ -65,7 +85,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Line
                 type="monotone" dataKey="valor"
                 stroke={colores.primario} strokeWidth={2}
@@ -90,7 +110,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Area
                 type="monotone" dataKey="valor"
                 stroke={colores.primario} strokeWidth={2}
@@ -108,7 +128,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${fmt(v)} ${unidad}`, nombre]} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Bar dataKey="valor" fill={colores.primario} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -123,7 +143,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Legend
                 iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }}
@@ -149,7 +169,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
               <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} />
               <XAxis dataKey={xKey} tick={AXIS_STYLE} tickLine={false} />
               <YAxis tick={AXIS_STYLE} tickLine={false} axisLine={false} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Legend iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }} />
               {cols.map((s) => (
@@ -174,7 +194,7 @@ export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series
                   <Cell key={i} fill={cols[i % cols.length]?.color || colores.primario} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Tooltip content={<CustomTooltip unidad={unidad} />} />
               <Legend iconType="square" iconSize={8}
                 wrapperStyle={{ fontSize: 11, fontFamily: "'Syne', sans-serif" }} />
             </PieChart>
