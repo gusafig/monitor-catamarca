@@ -843,8 +843,6 @@ function Admin({ items, setItems, onSalir }) {
   );
 }
 
-  );
-}
 
 // ── PANEL ADMIN ───────────────────────────────────────────────────
 const PASSWORD = "synergia2026";
