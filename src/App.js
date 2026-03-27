@@ -27,11 +27,23 @@ async function cargarContenidos() {
 }
 
 async function guardarContenido(item) {
-  await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
-    method: "POST",
-    headers: { ...sbHeaders, "Prefer": "resolution=merge-duplicates" },
-    body: JSON.stringify(item),
-  });
+  if (item._isNew) {
+    // Artículo nuevo → POST
+    const { _isNew, ...data } = item;
+    await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
+      method: "POST",
+      headers: sbHeaders,
+      body: JSON.stringify(data),
+    });
+  } else {
+    // Artículo existente → PATCH filtrado por id
+    const { id, ...data } = item;
+    await fetch(`${SUPABASE_URL}/rest/v1/contenidos?id=eq.${id}`, {
+      method: "PATCH",
+      headers: sbHeaders,
+      body: JSON.stringify(data),
+    });
+  }
 }
 
 async function eliminarContenido(id) {
@@ -621,7 +633,8 @@ function Admin({ items, setItems, onSalir }) {
   async function guardar() {
     if (!form.titulo.trim()) return;
     // Guardar siempre con el nuevo formato de bloques
-    const item = form.id ? { ...form } : { ...form, id: Date.now() };
+    const esNuevo = !form.id;
+    const item = esNuevo ? { ...form, id: Date.now(), _isNew: true } : { ...form };
     // Limpiar campos legacy para no duplicar contenido
     item.texto = "";
     item.embed = "";
