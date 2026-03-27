@@ -393,38 +393,30 @@ function Contenidos({ items, onVerArticulo }) {
 }
 
 // ── DATAWRAPPER EMBED ────────────────────────────────────────────
-function DatawrapperEmbed({ embed }) {
-  function getSrc(raw) {
-    const trimmed = raw.trim();
-    if (trimmed.startsWith("http") && trimmed.includes("datawrapper.dwcdn.net")) return trimmed;
-    const match = trimmed.match(/src=["']([^"']+)["']/);
-    return match ? match[1] : null;
+
+// ── HELPERS DE BLOQUES ────────────────────────────────────────────
+// Un artículo puede tener un campo "bloques" (array) O el campo legacy
+// "texto" + "embed". Esta función normaliza ambos formatos al nuevo.
+function normalizarBloques(item) {
+  if (item.bloques && Array.isArray(item.bloques) && item.bloques.length > 0) {
+    return item.bloques;
   }
-  function getHeight(raw) {
-    const match = raw.match(/height=["']?(\d+)["']?/);
-    return match ? parseInt(match[1], 10) : 400;
+  // Compatibilidad con artículos anteriores (texto + embed al final)
+  const bloques = [];
+  if (item.texto) {
+    bloques.push({ tipo: "texto", contenido: item.texto });
   }
-  const src = getSrc(embed);
-  const height = getHeight(embed);
-  if (!src) return null;
-  return (
-    <iframe
-      src={src}
-      title="Visualización Datawrapper"
-      width="100%"
-      height={height}
-      style={{ width: "100%", height: height + "px", border: "none", display: "block" }}
-      scrolling="no"
-      allowFullScreen
-    />
-  );
+  if (item.embed) {
+    bloques.push({ tipo: "embed", contenido: item.embed });
+  }
+  return bloques;
 }
 
 // ── VISTA DE ARTÍCULO ────────────────────────────────────────────
 function Articulo({ item, onVolver }) {
   if (!item) return null;
 
-  const parrafos = (item.texto || "").split("\n\n").filter(Boolean);
+  const bloques = normalizarBloques(item);
 
   function descargarPDF(item) {
     const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -469,39 +461,41 @@ function Articulo({ item, onVolver }) {
     doc.line(margin, y, margin + 20, y);
     y += 8;
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.setTextColor(34, 34, 34);
-    const parrafosPDF = (item.texto || "").split("\n\n").filter(Boolean);
-    parrafosPDF.forEach((parrafo) => {
-      const lines = doc.splitTextToSize(parrafo, maxW);
-      lines.forEach((line) => {
-        if (y > pageH - margin) { doc.addPage(); y = margin; }
-        doc.text(line, margin, y);
-        y += 6;
-      });
-      y += 4;
-    });
-
-    if (item.embed) {
-      if (y > pageH - 30) { doc.addPage(); y = margin; }
-      y += 4;
-      doc.setDrawColor(220, 220, 220);
-      doc.setLineWidth(0.3);
-      doc.rect(margin, y, maxW, 18, "S");
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.text("Visualización interactiva disponible en la versión web del artículo.", margin + 4, y + 7);
-      const srcMatch = item.embed.match(/src=["']([^"']+)["']/);
-      const src = srcMatch ? srcMatch[1] : (item.embed.startsWith("http") ? item.embed.trim() : null);
-      if (src) {
+    bloques.forEach((bloque) => {
+      if (bloque.tipo === "texto") {
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(21, 96, 122);
-        doc.text(src, margin + 4, y + 13);
+        doc.setFontSize(11);
+        doc.setTextColor(34, 34, 34);
+        const parrafos = (bloque.contenido || "").split("\n\n").filter(Boolean);
+        parrafos.forEach((parrafo) => {
+          const lines = doc.splitTextToSize(parrafo, maxW);
+          lines.forEach((line) => {
+            if (y > pageH - margin) { doc.addPage(); y = margin; }
+            doc.text(line, margin, y);
+            y += 6;
+          });
+          y += 4;
+        });
+      } else if (bloque.tipo === "embed") {
+        if (y > pageH - 30) { doc.addPage(); y = margin; }
+        y += 4;
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.3);
+        doc.rect(margin, y, maxW, 18, "S");
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Visualización interactiva disponible en la versión web del artículo.", margin + 4, y + 7);
+        const srcMatch = bloque.contenido.match(/src=["']([^"']+)["']/);
+        const src = srcMatch ? srcMatch[1] : (bloque.contenido.startsWith("http") ? bloque.contenido.trim() : null);
+        if (src) {
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(21, 96, 122);
+          doc.text(src, margin + 4, y + 13);
+        }
+        y += 24;
       }
-      y += 24;
-    }
+    });
 
     const totalPages = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
@@ -548,17 +542,28 @@ function Articulo({ item, onVolver }) {
 
         <div className="articulo-separador" />
 
-        <div className="articulo-cuerpo">
-          {parrafos.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
+        {/* Renderizado de bloques en orden */}
+        <div className="articulo-bloques">
+          {bloques.map((bloque, i) => {
+            if (bloque.tipo === "texto") {
+              return (
+                <div key={i} className="articulo-cuerpo">
+                  {bloque.contenido.split("\n\n").filter(Boolean).map((p, j) => (
+                    <p key={j}>{p}</p>
+                  ))}
+                </div>
+              );
+            }
+            if (bloque.tipo === "embed") {
+              return (
+                <div key={i} className="articulo-viz">
+                  <DatawrapperEmbed embed={bloque.contenido} />
+                </div>
+              );
+            }
+            return null;
+          })}
         </div>
-
-        {item.embed && (
-          <div className="articulo-viz">
-            <DatawrapperEmbed embed={item.embed} />
-          </div>
-        )}
 
         {item.link && (
           <div className="articulo-link-wrap">
@@ -569,6 +574,275 @@ function Articulo({ item, onVolver }) {
         )}
       </div>
     </div>
+  );
+}
+
+// ── PANEL ADMIN ───────────────────────────────────────────────────
+const PASSWORD = "synergia2026";
+
+function Admin({ items, setItems, onSalir }) {
+  const [autenticado, setAutenticado] = useState(false);
+  const [adminPass, setAdminPass] = useState("");
+  const [errorPass, setErrorPass] = useState(false);
+  const [vista, setVista] = useState("lista");
+  const [form, setForm] = useState(formVacio());
+
+  function formVacio() {
+    return {
+      id: null,
+      titulo: "",
+      bajada: "",
+      fecha: new Date().toISOString().slice(0, 10),
+      bloques: [{ tipo: "texto", contenido: "" }],
+      imagen: "",
+      imagen_articulo: "",
+      link: "",
+      linkLabel: "",
+      // campos legacy mantenidos para compatibilidad con artículos existentes
+      texto: "",
+      embed: "",
+    };
+  }
+
+  function login() {
+    if (adminPass === PASSWORD) { setAutenticado(true); setErrorPass(false); }
+    else { setErrorPass(true); }
+  }
+
+  function nuevoItem() { setForm(formVacio()); setVista("form"); }
+
+  function editarItem(item) {
+    // Si el artículo es legacy (sin bloques), convertirlo al nuevo formato
+    const bloques = normalizarBloques(item);
+    setForm({ ...item, bloques: bloques.length > 0 ? bloques : [{ tipo: "texto", contenido: "" }] });
+    setVista("form");
+  }
+
+  async function guardar() {
+    if (!form.titulo.trim()) return;
+    // Guardar siempre con el nuevo formato de bloques
+    const item = form.id ? { ...form } : { ...form, id: Date.now() };
+    // Limpiar campos legacy para no duplicar contenido
+    item.texto = "";
+    item.embed = "";
+    await guardarContenido(item);
+    const nuevos = await cargarContenidos();
+    setItems(nuevos);
+    setVista("lista");
+  }
+
+  async function eliminar(id) {
+    if (window.confirm("¿Eliminar esta publicación?")) {
+      await eliminarContenido(id);
+      const nuevos = await cargarContenidos();
+      setItems(nuevos);
+    }
+  }
+
+  // ── Funciones para manejar bloques ──────────────────────────────
+  function agregarBloque(tipo) {
+    setForm((f) => ({
+      ...f,
+      bloques: [...f.bloques, { tipo, contenido: "" }],
+    }));
+  }
+
+  function actualizarBloque(idx, contenido) {
+    setForm((f) => {
+      const bloques = f.bloques.map((b, i) => i === idx ? { ...b, contenido } : b);
+      return { ...f, bloques };
+    });
+  }
+
+  function eliminarBloque(idx) {
+    setForm((f) => ({
+      ...f,
+      bloques: f.bloques.filter((_, i) => i !== idx),
+    }));
+  }
+
+  function moverBloque(idx, direccion) {
+    setForm((f) => {
+      const bloques = [...f.bloques];
+      const destino = idx + direccion;
+      if (destino < 0 || destino >= bloques.length) return f;
+      [bloques[idx], bloques[destino]] = [bloques[destino], bloques[idx]];
+      return { ...f, bloques };
+    });
+  }
+
+  if (!autenticado) {
+    return (
+      <div className="admin-page">
+        <div className="admin-login-box">
+          <h2 className="admin-login-title">Acceso administrador</h2>
+          <input
+            type="password"
+            placeholder="Contraseña"
+            value={adminPass}
+            onChange={(e) => setAdminPass(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && login()}
+            className="admin-input"
+            autoFocus
+          />
+          <button className="btn-primary" onClick={login}>Ingresar</button>
+          {errorPass && <p className="admin-error">Contraseña incorrecta</p>}
+          <button className="admin-link-volver" onClick={onSalir}>← Volver al sitio</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (vista === "form") {
+    return (
+      <div className="admin-page">
+        <div className="admin-form-page">
+          <div className="admin-form-header">
+            <h2 className="admin-form-title">{form.id ? "Editar publicación" : "Nueva publicación"}</h2>
+            <button className="btn-secondary" onClick={() => setVista("lista")}>Cancelar</button>
+          </div>
+          <div className="admin-form">
+
+            <label className="admin-label">Título *</label>
+            <input className="admin-input" placeholder="Título del artículo" value={form.titulo} onChange={(e) => setForm({ ...form, titulo: e.target.value })} />
+
+            <label className="admin-label">Bajada / subtítulo</label>
+            <textarea className="admin-textarea" placeholder="Descripción breve que aparece en el listado y al inicio del artículo" value={form.bajada} onChange={(e) => setForm({ ...form, bajada: e.target.value })} style={{minHeight: "70px"}} />
+
+            <label className="admin-label">Fecha</label>
+            <input className="admin-input" type="date" value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} />
+
+            {/* ── EDITOR DE BLOQUES ─────────────────────────── */}
+            <label className="admin-label" style={{ marginTop: "1.5rem" }}>
+              Contenido del artículo
+            </label>
+            <p className="admin-hint">
+              Construí el artículo agregando bloques de texto y gráficos de Datawrapper en el orden que quieras.
+              Usá las flechas ↑ ↓ para reordenarlos.
+            </p>
+
+            <div className="admin-bloques">
+              {form.bloques.map((bloque, idx) => (
+                <div key={idx} className="admin-bloque">
+                  <div className="admin-bloque-header">
+                    <span className="admin-bloque-tipo">
+                      {bloque.tipo === "texto" ? "📝 Bloque de texto" : "📊 Gráfico Datawrapper"}
+                    </span>
+                    <div className="admin-bloque-acciones">
+                      <button
+                        className="admin-bloque-btn"
+                        onClick={() => moverBloque(idx, -1)}
+                        disabled={idx === 0}
+                        title="Mover arriba"
+                      >↑</button>
+                      <button
+                        className="admin-bloque-btn"
+                        onClick={() => moverBloque(idx, 1)}
+                        disabled={idx === form.bloques.length - 1}
+                        title="Mover abajo"
+                      >↓</button>
+                      <button
+                        className="admin-bloque-btn admin-bloque-btn-del"
+                        onClick={() => eliminarBloque(idx)}
+                        title="Eliminar bloque"
+                      >✕</button>
+                    </div>
+                  </div>
+
+                  {bloque.tipo === "texto" ? (
+                    <textarea
+                      className="admin-textarea"
+                      placeholder="Escribí el texto aquí. Separá párrafos con una línea en blanco."
+                      value={bloque.contenido}
+                      onChange={(e) => actualizarBloque(idx, e.target.value)}
+                      style={{ minHeight: "160px" }}
+                    />
+                  ) : (
+                    <textarea
+                      className="admin-textarea"
+                      placeholder='Pegá el código iframe de Datawrapper aquí. Ej: <iframe title="..." src="https://datawrapper.dwcdn.net/..." ...'
+                      value={bloque.contenido}
+                      onChange={(e) => actualizarBloque(idx, e.target.value)}
+                      style={{ minHeight: "90px", fontFamily: "monospace", fontSize: "12px" }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="admin-bloques-agregar">
+              <span className="admin-hint" style={{ marginBottom: 0, alignSelf: "center" }}>Agregar bloque:</span>
+              <button className="btn-secondary" onClick={() => agregarBloque("texto")}>
+                + Texto
+              </button>
+              <button className="btn-secondary" onClick={() => agregarBloque("embed")}>
+                + Gráfico Datawrapper
+              </button>
+            </div>
+            {/* ── FIN EDITOR DE BLOQUES ─────────────────────── */}
+
+            <label className="admin-label" style={{ marginTop: "1.5rem" }}>URL de imagen de portada</label>
+            <p className="admin-hint">Aparece en el listado de contenidos.</p>
+            <input className="admin-input" placeholder="https://..." value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
+
+            <label className="admin-label">URL de imagen de cabecera del artículo</label>
+            <p className="admin-hint">Aparece dentro del artículo. Si está vacía, no se muestra ninguna imagen.</p>
+            <input className="admin-input" placeholder="https://... (opcional)" value={form.imagen_articulo || ""} onChange={(e) => setForm({ ...form, imagen_articulo: e.target.value })} />
+
+            <label className="admin-label">Link externo (opcional)</label>
+            <input className="admin-input" placeholder="https://..." value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
+            <input className="admin-input" placeholder="Texto del link (ej: Ver informe completo)" value={form.linkLabel} onChange={(e) => setForm({ ...form, linkLabel: e.target.value })} />
+
+            <div className="admin-form-btns">
+              <button className="btn-primary" onClick={guardar}>Guardar publicación</button>
+              <button className="btn-secondary" onClick={() => setVista("lista")}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-page">
+      <div className="admin-lista-page">
+        <div className="admin-lista-header">
+          <div>
+            <h2 className="admin-lista-title">Publicaciones</h2>
+            <p className="admin-lista-sub">{items.length} artículo{items.length !== 1 ? "s" : ""}</p>
+          </div>
+          <div className="admin-lista-actions">
+            <button className="btn-primary" onClick={nuevoItem}>+ Nueva publicación</button>
+            <button className="btn-secondary" onClick={onSalir}>← Salir</button>
+          </div>
+        </div>
+
+        {items.length === 0 && <p className="informes-empty">No hay publicaciones aún.</p>}
+
+        <div className="admin-posts-list">
+          {items.map((item) => (
+            <div className="admin-post-row" key={item.id}>
+              {item.imagen
+                ? <img src={item.imagen} alt="" className="admin-post-thumb" />
+                : <div className="admin-post-thumb-placeholder" />
+              }
+              <div className="admin-post-info">
+                <span className="admin-post-titulo">{item.titulo}</span>
+                <span className="admin-post-meta">{formatFecha(item.fecha)} · {tiempoLectura(item.texto)}</span>
+                {item.bajada && <span className="admin-post-bajada">{item.bajada}</span>}
+              </div>
+              <div className="admin-post-btns">
+                <button className="btn-edit" onClick={() => editarItem(item)}>Editar</button>
+                <button className="btn-delete" onClick={() => eliminar(item.id)}>Eliminar</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
   );
 }
 
