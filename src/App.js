@@ -27,22 +27,38 @@ async function cargarContenidos() {
 }
 
 async function guardarContenido(item) {
+  const headers = { ...sbHeaders, "Prefer": "return=representation" };
+
   if (item._isNew) {
     // Artículo nuevo → POST
     const { _isNew, ...data } = item;
-    await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/contenidos`, {
       method: "POST",
-      headers: sbHeaders,
+      headers,
       body: JSON.stringify(data),
     });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("Error al crear contenido:", err);
+      throw new Error(err);
+    }
   } else {
     // Artículo existente → PATCH filtrado por id
     const { id, ...data } = item;
-    await fetch(`${SUPABASE_URL}/rest/v1/contenidos?id=eq.${id}`, {
+    // Asegurarse que bloques sea un array serializable (por si viene como string)
+    if (typeof data.bloques === "string") {
+      try { data.bloques = JSON.parse(data.bloques); } catch {}
+    }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/contenidos?id=eq.${id}`, {
       method: "PATCH",
-      headers: sbHeaders,
+      headers,
       body: JSON.stringify(data),
     });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("Error al actualizar contenido (id=" + id + "):", err);
+      throw new Error(err);
+    }
   }
 }
 
@@ -692,16 +708,19 @@ function Admin({ items, setItems, onSalir }) {
 
   async function guardar() {
     if (!form.titulo.trim()) return;
-    // Guardar siempre con el nuevo formato de bloques
     const esNuevo = !form.id;
     const item = esNuevo ? { ...form, id: Date.now(), _isNew: true } : { ...form };
     // Limpiar campos legacy para no duplicar contenido
     item.texto = "";
     item.embed = "";
-    await guardarContenido(item);
-    const nuevos = await cargarContenidos();
-    setItems(nuevos);
-    setVista("lista");
+    try {
+      await guardarContenido(item);
+      const nuevos = await cargarContenidos();
+      setItems(nuevos);
+      setVista("lista");
+    } catch (e) {
+      alert("No se pudo guardar el artículo. Revisá la consola del navegador para más detalles.");
+    }
   }
 
   async function eliminar(id) {
