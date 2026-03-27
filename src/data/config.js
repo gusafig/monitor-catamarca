@@ -162,18 +162,18 @@ export const CONFIG = {
 // ----------------------------------------------------------
 export const COLORES = {
   economia_real: {
-    primario:   "#1D9E75",
-    secundario: "#9FE1CB",
-    fondo:      "rgba(29,158,117,0.08)",
+    primario:   "#e6322e",
+    secundario: "#f0817f",
+    fondo:      "rgba(230,50,46,0.08)",
   },
   finanzas: {
-    primario:   "#378ADD",
-    secundario: "#85B7EB",
-    fondo:      "rgba(55,138,221,0.08)",
+    primario:   "#15607a",
+    secundario: "#5a9db5",
+    fondo:      "rgba(21,96,122,0.08)",
   },
   cotizaciones: {
-    primario:   "#EF9F27",
-    secundario: "#FAC775",
-    fondo:      "rgba(239,159,39,0.08)",
+    primario:   "#36aeac",
+    secundario: "#7dd0ce",
+    fondo:      "rgba(54,174,172,0.08)",
   },
 };
