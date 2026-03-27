@@ -57,6 +57,19 @@ export const CONFIG = {
     {
       id: "variable3",
       seccion: "economia_real",
+      nombre: "Despachos de naftas",
+      unidad: "metros cúbicos",
+      archivo: "naftas.csv",
+      tipo: "linea",
+      kpi: true,
+      formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
+      periodo: "mes",
+      descripcion: "Despachos de naftas a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
+    },
+
+ {
+      id: "variable3",
+      seccion: "economia_real",
       nombre: "Empleo registrado privado",
       unidad: "miles de trabajadores",
       archivo: "empleo.csv",
@@ -66,6 +79,7 @@ export const CONFIG = {
       periodo: "mes",
       descripcion: "Asalariados privados registrados en el SIPA. Fuente: Ministerio de Capital Humano.",
     },
+
 
     // ── FINANZAS PÚBLICAS ─────────────────────────────────────
     {
