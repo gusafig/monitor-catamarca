@@ -405,6 +405,31 @@ function Contenidos({ items, onVerArticulo }) {
 }
 
 // ── DATAWRAPPER EMBED ────────────────────────────────────────────
+function DatawrapperEmbed({ embed }) {
+  const ref = React.useRef(null);
+
+  useEffect(() => {
+    if (!ref.current || !embed) return;
+
+    // Si es un iframe HTML completo, inyectarlo via innerHTML
+    if (embed.trim().startsWith("<iframe")) {
+      ref.current.innerHTML = embed;
+      // Cargar el script de resize de Datawrapper si aún no está
+      if (!document.querySelector('script[src*="datawrapper.dwcdn.net"]')) {
+        const script = document.createElement("script");
+        script.src = "https://datawrapper.dwcdn.net/lib/embed.min.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    } else if (embed.trim().startsWith("http")) {
+      // Si es solo una URL, crear el iframe manualmente
+      ref.current.innerHTML = `<iframe src="${embed}" frameborder="0" scrolling="no" style="width:100%;border:none;" title="Datawrapper chart"></iframe>`;
+    }
+  }, [embed]);
+
+  if (!embed) return null;
+  return <div ref={ref} className="datawrapper-embed-wrap" style={{ width: "100%", margin: "1.5rem 0" }} />;
+}
 
 // ── HELPERS DE BLOQUES ────────────────────────────────────────────
 // Un artículo puede tener un campo "bloques" (array) O el campo legacy
