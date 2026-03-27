@@ -123,14 +123,14 @@ export const CONFIG = {
     {
       id: "variable6",
       seccion: "finanzas",
-      nombre: "Variable 6",
-      unidad: "unidad",
-      archivo: "variable6.csv",
+      nombre: "Gastos corrientes del gobierno provincial a precios constantes",
+      unidad: "millones de pesos de febrero 2026",
+      archivo: "gtoscorrientes.csv",
       tipo: "area",
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Descripción de la variable 6.",
+      descripcion: "Gastos corrientes del gobierno provincial deflactados por IPC NOA. Fuentes: Contaduría General de la Provincia e INDEC..",
     },
 
     // ── COTIZACIONES / OTROS ──────────────────────────────────
