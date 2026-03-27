@@ -66,7 +66,21 @@ export const CONFIG = {
       periodo: "mes",
       descripcion: "Despachos de naftas a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
     },
+{
+      id: "variable3",
+      seccion: "economia_real",
+      nombre: "Despachos de gas oil",
+      unidad: "metros cúbicos",
+      archivo: "gas oil.csv",
+      tipo: "linea",
+      kpi: true,
+      formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
+      periodo: "mes",
+      descripcion: "Despachos de gas oil a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
+    },
+    
 
+    
  {
       id: "variable3",
       seccion: "economia_real",
