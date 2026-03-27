@@ -406,29 +406,64 @@ function Contenidos({ items, onVerArticulo }) {
 
 // ── DATAWRAPPER EMBED ────────────────────────────────────────────
 function DatawrapperEmbed({ embed }) {
-  const ref = React.useRef(null);
+  const wrapRef = React.useRef(null);
 
   useEffect(() => {
-    if (!ref.current || !embed) return;
+    if (!wrapRef.current || !embed) return;
+    const raw = embed.trim();
 
-    // Si es un iframe HTML completo, inyectarlo via innerHTML
-    if (embed.trim().startsWith("<iframe")) {
-      ref.current.innerHTML = embed;
-      // Cargar el script de resize de Datawrapper si aún no está
-      if (!document.querySelector('script[src*="datawrapper.dwcdn.net"]')) {
-        const script = document.createElement("script");
-        script.src = "https://datawrapper.dwcdn.net/lib/embed.min.js";
-        script.async = true;
-        document.body.appendChild(script);
+    // Extraer src del iframe o usar URL directa
+    const srcMatch = raw.match(/src=["']([^"']+)["']/);
+    const src = srcMatch ? srcMatch[1] : (raw.startsWith("http") ? raw : null);
+    if (!src) return;
+
+    // Extraer chart id de la URL (ej: dwcdn.net/XXXXX/1/)
+    const idMatch = src.match(/dwcdn\.net\/([^/]+)/);
+    const chartId = idMatch ? idMatch[1] : null;
+
+    // Crear iframe responsivo sin height fijo
+    const iframe = document.createElement("iframe");
+    iframe.src = src;
+    iframe.setAttribute("frameborder", "0");
+    iframe.setAttribute("scrolling", "no");
+    iframe.setAttribute("title", "Datawrapper chart");
+    if (chartId) iframe.setAttribute("id", `datawrapper-chart-${chartId}`);
+    iframe.style.cssText = "width:100%;min-width:100%;border:none;display:block;";
+
+    wrapRef.current.innerHTML = "";
+    wrapRef.current.appendChild(iframe);
+
+    // Escuchar postMessage de Datawrapper para ajustar la altura dinámicamente
+    function onMessage(e) {
+      if (!e.data || typeof e.data !== "object") return;
+      if (e.data.sentinel !== "amp") return;
+      if (chartId && e.data.chartId && e.data.chartId !== chartId) return;
+      if (e.data.type === "datawrapper-height" && e.data.value) {
+        iframe.style.height = e.data.value + "px";
       }
-    } else if (embed.trim().startsWith("http")) {
-      // Si es solo una URL, crear el iframe manualmente
-      ref.current.innerHTML = `<iframe src="${embed}" frameborder="0" scrolling="no" style="width:100%;border:none;" title="Datawrapper chart"></iframe>`;
     }
-  }, [embed]);
+    window.addEventListener("message", onMessage);
+
+    // Script oficial de resize de Datawrapper (cargado una sola vez)
+    if (!document.getElementById("datawrapper-embed-script")) {
+      const script = document.createElement("script");
+      script.id = "datawrapper-embed-script";
+      script.src = "https://datawrapper.dwcdn.net/lib/embed.min.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
+    return () => window.removeEventListener("message", onMessage);
+  }, [embed]); // eslint-disable-line
 
   if (!embed) return null;
-  return <div ref={ref} className="datawrapper-embed-wrap" style={{ width: "100%", margin: "1.5rem 0" }} />;
+  return (
+    <div
+      ref={wrapRef}
+      className="datawrapper-embed-wrap"
+      style={{ width: "100%", margin: "1.5rem 0", overflow: "hidden" }}
+    />
+  );
 }
 
 // ── HELPERS DE BLOQUES ────────────────────────────────────────────
