@@ -26,6 +26,8 @@ export const CONFIG = {
   //  - kpi: true → aparece en las tarjetas del dashboard
   //  - formato: función JS para mostrar el valor
   //  - periodo: "mes" | "trimestre" | "año" (para mostrar referencia)
+  //  - frecuencia: "diaria" → los datos se agrupan por promedio mensual
+  //  - variacion: "interanual" → calcula variación vs 12 meses atrás
   // ----------------------------------------------------------
   indicadores: [
     // ── ECONOMÍA REAL ─────────────────────────────────────────
@@ -66,7 +68,7 @@ export const CONFIG = {
       periodo: "mes",
       descripcion: "Despachos de naftas a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
     },
-{
+    {
       id: "variable10",
       seccion: "economia_real",
       nombre: "Despachos de gas oil",
@@ -78,9 +80,7 @@ export const CONFIG = {
       periodo: "mes",
       descripcion: "Despachos de gas oil a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
     },
-    
-    
- {
+    {
       id: "variable3",
       seccion: "economia_real",
       nombre: "Empleo registrado privado",
@@ -93,7 +93,6 @@ export const CONFIG = {
       descripcion: "Asalariados privados registrados en el SIPA. Fuente: Ministerio de Capital Humano.",
     },
 
-
     // ── FINANZAS PÚBLICAS ─────────────────────────────────────
     {
       id: "variable4",
@@ -105,7 +104,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Ingresos tributarios de origen nacional por coparticipaciòn y leyes especiales deflactados por IPC NOA. Fuentes: Ministerio de Economía e INDEC.",
+      descripcion: "Ingresos tributarios de origen nacional por coparticipación y leyes especiales deflactados por IPC NOA. Fuentes: Ministerio de Economía e INDEC.",
     },
     {
       id: "variable5",
@@ -120,6 +119,7 @@ export const CONFIG = {
       descripcion: "Ingresos corrientes del gobierno provincial deflactados por IPC NOA. Fuentes: Contaduría General de la Provincia e INDEC.",
     },
     {
+      // FIX: cambiado de "area" a "linea" para eliminar el relleno bajo la curva
       id: "variable6",
       seccion: "finanzas",
       nombre: "Gastos corrientes del gobierno provincial a precios constantes",
@@ -129,7 +129,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Gastos corrientes del gobierno provincial deflactados por IPC NOA. Fuentes: Contaduría General de la Provincia e INDEC..",
+      descripcion: "Gastos corrientes del gobierno provincial deflactados por IPC NOA. Fuentes: Contaduría General de la Provincia e INDEC.",
     },
 
     // ── COTIZACIONES / OTROS ──────────────────────────────────
@@ -144,9 +144,9 @@ export const CONFIG = {
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "semana",
       descripcion: "Cotización semanal del aceite de oliva extra virgen en Jaén (España). Fuente: Comisión Europea. Nota: la temporada comprende desde octubre hasta septiembre del año siguiente.",
-    
     },
     {
+      // FIX: agregado variacion: "interanual" para calcular variación vs 12 meses atrás
       id: "variable7",
       seccion: "cotizaciones",
       nombre: "Cotización del cobre refinado",
@@ -154,23 +154,28 @@ export const CONFIG = {
       archivo: "cobre.csv",
       tipo: "linea",
       kpi: true,
+      variacion: "interanual",
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
       descripcion: "Cotización promedio mensual del cátodo de cobre grado A. Fuente: Westmetall.",
     },
     {
+      // FIX: configurado con datos del litio. frecuencia: "diaria" activa
+      // la agregación automática por promedio mensual en Section.jsx
       id: "variable8",
       seccion: "cotizaciones",
-      nombre: "Variable 8",
-      unidad: "unidad",
-      archivo: "variable8.csv",
-      tipo: "barra",
+      nombre: "Cotización del litio (carbonato)",
+      unidad: "USD/tonelada",
+      archivo: "litio.csv",
+      tipo: "linea",
       kpi: true,
+      frecuencia: "diaria",
+      variacion: "interanual",
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Descripción de la variable 8.",
+      descripcion: "Cotización promedio mensual del carbonato de litio. Elaboración propia a partir de datos diarios.",
     },
-   ],
+  ],
 };
 
 // ----------------------------------------------------------
