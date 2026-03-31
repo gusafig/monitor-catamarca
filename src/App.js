@@ -141,10 +141,132 @@ function useUltimaActualizacion(items) {
   return formatFechaActualizacion(max);
 }
 
+// ── FORMULARIO DE CONTACTO ────────────────────────────────────────
+function ContactForm() {
+  const [form, setForm] = useState({ nombre: "", email: "", mensaje: "" });
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState("idle"); // idle | sending | success | error
+
+  function validate() {
+    const e = {};
+    if (!form.nombre.trim()) e.nombre = "Ingresá tu nombre";
+    if (!form.email.trim()) {
+      e.email = "Ingresá tu email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      e.email = "Email inválido";
+    }
+    if (!form.mensaje.trim()) e.mensaje = "Escribí tu consulta";
+    else if (form.mensaje.trim().length < 10) e.mensaje = "Escribí al menos 10 caracteres";
+    return e;
+  }
+
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+    // Limpiar error del campo al editar
+    if (errors[name]) setErrors((err) => ({ ...err, [name]: undefined }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const e2 = validate();
+    if (Object.keys(e2).length > 0) { setErrors(e2); return; }
+    setStatus("sending");
+    // Simulación de envío — reemplazar con fetch a endpoint real
+    try {
+      await new Promise((res) => setTimeout(res, 1200));
+      setStatus("success");
+      setForm({ nombre: "", email: "", mensaje: "" });
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  if (status === "success") {
+    return (
+      <div className="contact-success">
+        <div className="contact-success-icon">✓</div>
+        <h3 className="contact-success-title">Mensaje enviado</h3>
+        <p className="contact-success-desc">
+          Nos ponemos en contacto en las próximas 24–48 horas hábiles.
+        </p>
+        <button className="contact-success-reset" onClick={() => setStatus("idle")}>
+          Enviar otro mensaje
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form className="contact-form" onSubmit={handleSubmit} noValidate>
+      <div className="contact-field">
+        <label className="contact-label" htmlFor="cf-nombre">Nombre</label>
+        <input
+          id="cf-nombre"
+          name="nombre"
+          type="text"
+          className={"contact-input" + (errors.nombre ? " contact-input-error" : "")}
+          placeholder="Tu nombre completo"
+          value={form.nombre}
+          onChange={handleChange}
+          autoComplete="name"
+        />
+        {errors.nombre && <span className="contact-error">{errors.nombre}</span>}
+      </div>
+
+      <div className="contact-field">
+        <label className="contact-label" htmlFor="cf-email">Email</label>
+        <input
+          id="cf-email"
+          name="email"
+          type="email"
+          className={"contact-input" + (errors.email ? " contact-input-error" : "")}
+          placeholder="tu@email.com"
+          value={form.email}
+          onChange={handleChange}
+          autoComplete="email"
+        />
+        {errors.email && <span className="contact-error">{errors.email}</span>}
+      </div>
+
+      <div className="contact-field">
+        <label className="contact-label" htmlFor="cf-mensaje">Consulta</label>
+        <textarea
+          id="cf-mensaje"
+          name="mensaje"
+          className={"contact-textarea" + (errors.mensaje ? " contact-input-error" : "")}
+          placeholder="¿En qué podemos ayudarte?"
+          value={form.mensaje}
+          onChange={handleChange}
+          rows={4}
+        />
+        {errors.mensaje && <span className="contact-error">{errors.mensaje}</span>}
+      </div>
+
+      <button
+        type="submit"
+        className="contact-submit"
+        disabled={status === "sending"}
+      >
+        {status === "sending" ? "Enviando…" : "Enviar mensaje →"}
+      </button>
+
+      {status === "error" && (
+        <p className="contact-error-global">
+          No se pudo enviar el mensaje. Escribinos directamente a{" "}
+          <a href="mailto:synergiaconsult76@gmail.com">synergiaconsult76@gmail.com</a>
+        </p>
+      )}
+    </form>
+  );
+}
+
 // ── INICIO ───────────────────────────────────────────────────────
 function Inicio({ onNavigate, ultimaActualizacion }) {
   return (
     <div className="inicio-page">
+
+      {/* ── HERO ────────────────────────────────────────────────── */}
       <div className="inicio-hero">
         <div className="inicio-hero-inner">
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
@@ -154,12 +276,19 @@ function Inicio({ onNavigate, ultimaActualizacion }) {
           </h1>
           <p className="inicio-desc">
             Seguimiento sistemático de variables económicas
-            de la provincia de Catamarca. Información actualizada para la toma
-            de decisiones.
+            de la provincia de Catamarca. Información actualizada para
+            la toma de decisiones públicas y privadas.
           </p>
-          <button className="inicio-cta" onClick={() => onNavigate("monitor")}>
-            Explorar variables →
-          </button>
+          <div className="inicio-cta-row">
+            <button className="inicio-cta" onClick={() => onNavigate("monitor")}>
+              Explorar variables →
+            </button>
+            <button className="inicio-cta-secondary" onClick={() => {
+              document.getElementById("contacto")?.scrollIntoView({ behavior: "smooth" });
+            }}>
+              Contacto
+            </button>
+          </div>
         </div>
         <div className="inicio-stats">
           <div className="inicio-stat">
@@ -178,6 +307,8 @@ function Inicio({ onNavigate, ultimaActualizacion }) {
           </div>
         </div>
       </div>
+
+      {/* ── CARDS DE SECCIONES ──────────────────────────────────── */}
       <div className="inicio-cards">
         {CONFIG.secciones.map((s) => {
           const indicadoresSec = CONFIG.indicadores.filter((i) => i.seccion === s.id);
@@ -193,6 +324,30 @@ function Inicio({ onNavigate, ultimaActualizacion }) {
           );
         })}
       </div>
+
+      {/* ── SECCIÓN CONTACTO ────────────────────────────────────── */}
+      <section id="contacto" className="contacto-section">
+        <div className="contacto-inner">
+          <div className="contacto-copy">
+            <p className="contacto-eyebrow">Contacto</p>
+            <h2 className="contacto-titulo">
+              ¿Necesitás análisis<br />a medida?
+            </h2>
+            <p className="contacto-desc">
+              Trabajamos con organismos públicos, empresas y medios
+              que necesitan datos económicos de Catamarca con contexto
+              y metodología rigurosa.
+            </p>
+            <a href="mailto:synergiaconsult76@gmail.com" className="contacto-mail">
+              synergiaconsult76@gmail.com
+            </a>
+          </div>
+          <div className="contacto-form-wrap">
+            <ContactForm />
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }
