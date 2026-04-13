@@ -1096,12 +1096,16 @@ export default function App() {
     const path = window.location.pathname;
     if (path === "/admin") return "admin";
     if (path === "/monitor") return "monitor";
+    if (path.startsWith("/contenidos/")) return "articulo";
     if (path === "/contenidos") return "contenidos";
     return "inicio";
   });
   const [seccionMonitor, setSeccionMonitor] = useState(null);
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [articuloId, setArticuloId] = useState(null);
+  const [articuloId, setArticuloId] = useState(() => {
+    const match = window.location.pathname.match(/^\/contenidos\/(.+)$/);
+    return match ? Number(match[1]) : null;
+  });
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -1126,12 +1130,14 @@ export default function App() {
   function verArticulo(id) {
     setArticuloId(id);
     setPagina("articulo");
+    window.history.pushState({}, "", `/contenidos/${id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function volverDeArticulo() {
     setArticuloId(null);
     setPagina("contenidos");
+    window.history.pushState({}, "", "/contenidos");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
