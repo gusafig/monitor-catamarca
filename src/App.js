@@ -1116,6 +1116,25 @@ export default function App() {
     if (window.location.pathname === "/admin") setPagina("admin");
   }, []);
 
+  // Escuchar la flecha de retroceso/avance del navegador
+  useEffect(() => {
+    function handlePopState() {
+      const path = window.location.pathname;
+      if (path === "/admin") { setPagina("admin"); return; }
+      if (path === "/monitor") { setPagina("monitor"); setArticuloId(null); return; }
+      if (path.startsWith("/contenidos/")) {
+        const match = path.match(/^\/contenidos\/(.+)$/);
+        if (match) { setArticuloId(Number(match[1])); setPagina("articulo"); }
+        return;
+      }
+      if (path === "/contenidos") { setPagina("contenidos"); setArticuloId(null); return; }
+      setPagina("inicio");
+      setArticuloId(null);
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []); // eslint-disable-line
+
   const ultimaActualizacion = useUltimaActualizacion(items);
 
   function navegarA(pag, seccion) {
