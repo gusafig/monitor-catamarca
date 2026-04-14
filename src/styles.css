@@ -1678,3 +1678,266 @@ a { text-decoration: none; }
   .contacto-section { padding: 3.5rem 0 4rem; }
   .contacto-desc { max-width: none; }
 }
+
+/* ================================================================
+   BCRA — ESTADÍSTICAS
+   ================================================================ */
+
+.bcra-page { }
+
+/* ── TABS ────────────────────────────────────────────────────────── */
+.bcra-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 0;
+}
+
+.bcra-tab {
+  background: none;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+  border-radius: 0;
+}
+
+.bcra-tab:hover { color: var(--text-primary); }
+
+.bcra-tab--activa {
+  color: var(--color-secondary);
+  border-bottom-color: var(--color-secondary);
+  font-weight: 600;
+}
+
+/* ── KPI GRID ────────────────────────────────────────────────────── */
+.bcra-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 0.25rem;
+}
+
+/* ── KPI CARD ────────────────────────────────────────────────────── */
+.bcra-kpi-card {
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  position: relative;
+  overflow: hidden;
+}
+
+.bcra-kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--bcra-color, var(--color-secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s;
+}
+
+.bcra-kpi-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: var(--bcra-color, var(--color-secondary));
+}
+
+.bcra-kpi-card:hover::before,
+.bcra-kpi-card--activa::before {
+  transform: scaleX(1);
+}
+
+.bcra-kpi-card--activa {
+  border-color: var(--bcra-color, var(--color-secondary));
+  box-shadow: 0 4px 18px rgba(0,0,0,0.09);
+}
+
+.bcra-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.bcra-kpi-badge {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bcra-kpi-var {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.bcra-kpi-nombre {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  line-height: 1.35;
+  margin-bottom: 0.4rem;
+}
+
+.bcra-kpi-valor {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.bcra-kpi-valor.loading {
+  color: var(--text-secondary);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.bcra-kpi-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bcra-kpi-unidad {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.bcra-kpi-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.bcra-kpi-varlabel {
+  font-size: 9px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bcra-kpi-fecha {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ── GRÁFICO ─────────────────────────────────────────────────────── */
+.bcra-grafico-wrap {
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.bcra-grafico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.bcra-grafico-titulo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.bcra-grafico-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.bcra-grafico-unidad {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  background: var(--bg-secondary);
+  padding: 3px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.bcra-grafico-estado {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.bcra-grafico-error { color: var(--color-down); }
+
+/* ── TOOLTIP ─────────────────────────────────────────────────────── */
+.bcra-tooltip {
+  background: var(--bg-dark);
+  border-radius: 6px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.bcra-tooltip-fecha {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-mono);
+  margin: 0 0 3px;
+}
+
+.bcra-tooltip-valor {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  margin: 0;
+}
+
+/* ── PIE ─────────────────────────────────────────────────────────── */
+.bcra-fuente {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin: 1rem 0 0;
+  text-align: right;
+}
+
+.bcra-nota {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 1.25rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .bcra-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .bcra-kpi-grid { grid-template-columns: 1fr; gap: 10px; }
+  .bcra-grafico-wrap { padding: 1rem; }
+  .bcra-grafico-header { flex-direction: column; }
+  .bcra-tab { font-size: 13px; padding: 0.5rem 0.8rem; }
+}
