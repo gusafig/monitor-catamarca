@@ -133,6 +133,15 @@ export function bcraVarPeriodo(data) {
   return (((curr - prev) / Math.abs(prev)) * 100).toFixed(1);
 }
 
+/** Variación absoluta respecto al valor inmediatamente anterior */
+export function bcraVarAbsoluta(data) {
+  if (!data || data.length < 2) return null;
+  const prev = data[data.length - 2].valor;
+  const curr = data[data.length - 1].valor;
+  if (prev === null || prev === undefined) return null;
+  return curr - prev;
+}
+
 /** Variación % interanual (vs el dato más cercano a hace 365 días) */
 export function bcraVarAnual(data) {
   if (!data || data.length < 2) return null;
