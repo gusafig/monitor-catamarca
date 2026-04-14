@@ -75,18 +75,7 @@ export const VARIABLES_MONETARIAS = [
     formato: (v) => Number(v).toFixed(2) + "%",
     descripcion: "Tasa de interés de política monetaria del BCRA.",
   },
-  {
-    tipo: "monetaria",
-    id: 6,
-    nombre: "BADLAR bancos privados",
-    unidad: "% TNA",
-    color: "#27ae60",
-    grafico: "linea",
-    varAnual: false,
-    formato: (v) => Number(v).toFixed(2) + "%",
-    descripcion: "Tasa de interés pagada por depósitos a plazo fijo de más de $1 millón en bancos privados.",
-  },
-];
+ ];
 
 export const VARIABLES_CAMBIARIAS = [
   {
