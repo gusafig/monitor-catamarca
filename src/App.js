@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import { useCsvData, lastValue } from "./hooks/useCsvData";
 import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
+import BcraEstadisticas from "./components/BcraEstadisticas";
 import "./styles.css";
 
 // ── SUPABASE ──────────────────────────────────────────────────────
@@ -1098,6 +1099,7 @@ export default function App() {
     if (path === "/monitor") return "monitor";
     if (path.startsWith("/contenidos/")) return "articulo";
     if (path === "/contenidos") return "contenidos";
+    if (path === "/bcra") return "bcra";
     return "inicio";
   });
   const [seccionMonitor, setSeccionMonitor] = useState(null);
@@ -1128,6 +1130,7 @@ export default function App() {
         return;
       }
       if (path === "/contenidos") { setPagina("contenidos"); setArticuloId(null); return; }
+      if (path === "/bcra") { setPagina("bcra"); setArticuloId(null); return; }
       setPagina("inicio");
       setArticuloId(null);
     }
@@ -1190,6 +1193,12 @@ export default function App() {
               >
                 Contenidos
               </button>
+              <button
+                className={"nav-pill" + (pagina === "bcra" ? " nav-pill-active" : " nav-pill-inactive")}
+                onClick={() => navegarA("bcra")}
+              >
+                Estadísticas BCRA
+              </button>
             </nav>
             <button className="hamburger" onClick={() => setMenuAbierto(!menuAbierto)} aria-label="Menu">
               <span /><span /><span />
@@ -1205,6 +1214,7 @@ export default function App() {
           <Contenidos items={items} onVerArticulo={verArticulo} />
         )}
         {pagina === "articulo"   && <Articulo item={articuloActual} onVolver={volverDeArticulo} />}
+        {pagina === "bcra"       && <BcraEstadisticas />}
         {pagina === "admin"      && (
           <Admin
             items={items}
