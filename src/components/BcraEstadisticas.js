@@ -11,6 +11,7 @@ import {
   bcraUltimaFecha,
   bcraVarPeriodo,
   bcraVarAnual,
+  bcraVarAbsoluta,
 } from "../hooks/useBcraData";
 
 // ── CATÁLOGO DE VARIABLES ─────────────────────────────────────────
@@ -25,7 +26,8 @@ export const VARIABLES_MONETARIAS = [
     unidad: "millones de USD",
     color: "#15607a",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
+    varAbsoluta: true,
     formato: (v) => "USD " + Number(v).toLocaleString("es-AR", { maximumFractionDigits: 0 }),
     descripcion: "Stock de reservas internacionales brutas del BCRA.",
   },
@@ -36,7 +38,7 @@ export const VARIABLES_MONETARIAS = [
     unidad: "millones de $",
     color: "#8e44ad",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { maximumFractionDigits: 0 }),
     descripcion: "Circulación monetaria más depósitos de entidades financieras en el BCRA.",
   },
@@ -94,7 +96,7 @@ export const VARIABLES_CAMBIARIAS = [
     unidad: "$ por USD",
     color: "#2c7a2c",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     descripcion: "Tipo de cambio de referencia del dólar estadounidense publicado por el BCRA.",
   },
@@ -105,7 +107,7 @@ export const VARIABLES_CAMBIARIAS = [
     unidad: "$ por EUR",
     color: "#2980b9",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     descripcion: "Tipo de cambio de referencia del euro publicado por el BCRA.",
   },
@@ -116,7 +118,7 @@ export const VARIABLES_CAMBIARIAS = [
     unidad: "$ por BRL",
     color: "#d4a017",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     descripcion: "Tipo de cambio de referencia del real brasileño publicado por el BCRA.",
   },
@@ -127,7 +129,7 @@ export const VARIABLES_CAMBIARIAS = [
     unidad: "$ por CNY",
     color: "#c0392b",
     grafico: "linea",
-    varAnual: true,
+    varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     descripcion: "Tipo de cambio de referencia del yuan chino (renminbi) publicado por el BCRA.",
   },
@@ -164,14 +166,31 @@ function BcraKpiCard({ variable, activa, onClick }) {
   const ultimaFecha = bcraUltimaFecha(data);
   const varPer      = bcraVarPeriodo(data);
   const varAnio     = variable.varAnual ? bcraVarAnual(data) : null;
+  const varAbs      = variable.varAbsoluta ? bcraVarAbsoluta(data) : null;
 
-  const varDisplay = varAnio !== null ? varAnio : varPer;
-  const varNum     = varDisplay !== null ? parseFloat(varDisplay) : null;
-  const varColor   =
-    varNum === null       ? "var(--color-flat)"
-    : varNum > 0          ? "var(--color-up)"
-    :                       "var(--color-down)";
-  const varLabel = varAnio !== null ? "var. interanual" : "var. período ant.";
+  // Reservas: variación absoluta en millones de USD respecto al día hábil previo
+  const tieneVarAbs = varAbs !== null && variable.varAbsoluta;
+  // Inflación mensual: variación respecto al mes anterior (varPer)
+  // Resto: sin badge de variación
+  const mostrarVarPer = !tieneVarAbs && !variable.varAnual && variable.id === 27;
+  const varDisplay  = tieneVarAbs ? null : varAnio !== null ? varAnio : mostrarVarPer ? varPer : null;
+  const varNum      = varDisplay !== null ? parseFloat(varDisplay) : null;
+
+  const varColor =
+    tieneVarAbs
+      ? varAbs > 0 ? "var(--color-up)" : varAbs < 0 ? "var(--color-down)" : "var(--color-flat)"
+      : varNum === null ? "var(--color-flat)"
+      : varNum > 0     ? "var(--color-up)"
+      :                  "var(--color-down)";
+
+  const varLabel = tieneVarAbs
+    ? "var. día hábil previo"
+    : varAnio !== null ? "var. interanual" : "var. respecto mes ant.";
+
+  // Formato del badge: absoluto para reservas, porcentual para el resto
+  const varBadgeText = tieneVarAbs
+    ? (varAbs > 0 ? "+" : "") + Number(varAbs).toLocaleString("es-AR", { maximumFractionDigits: 0 }) + " M USD"
+    : varNum !== null ? (varNum > 0 ? "+" : "") + varDisplay + "%" : null;
 
   return (
     <button
@@ -187,9 +206,9 @@ function BcraKpiCard({ variable, activa, onClick }) {
         >
           {variable.tipo === "monetaria" ? "Monetaria" : "Cambiaria"}
         </span>
-        {varNum !== null && (
+        {varBadgeText && (
           <span className="bcra-kpi-var" style={{ color: varColor }}>
-            {varNum > 0 ? "+" : ""}{varDisplay}%
+            {varBadgeText}
           </span>
         )}
       </div>
@@ -203,7 +222,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
       <div className="bcra-kpi-footer">
         <span className="bcra-kpi-unidad">{variable.unidad}</span>
         <span className="bcra-kpi-meta">
-          {varNum !== null && <span className="bcra-kpi-varlabel">{varLabel}</span>}
+          {varBadgeText && <span className="bcra-kpi-varlabel">{varLabel}</span>}
           {ultimaFecha && (
             <span className="bcra-kpi-fecha">{formatFechaLarga(ultimaFecha)}</span>
           )}
