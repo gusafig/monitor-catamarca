@@ -25,7 +25,7 @@ const ICONOS = {
  *   tooltip   — texto descriptivo (opcional)
  *   icono     — clave de ícono (opcional, ej: "auto")
  */
-export function KPICard({ label, value, delta, color = "#1D9E75", loading, tooltip, periodo, icono }) {
+export function KPICard({ label, value, delta, color = "#1D9E75", loading, tooltip, periodo, icono, unidad }) {
   const deltaNum = parseFloat(delta);
   const isUp = deltaNum > 0;
   const isDown = deltaNum < 0;
@@ -48,6 +48,10 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
         <div className="kpi-skeleton" />
       ) : (
         <div className="kpi-value">{value ?? "—"}</div>
+      )}
+
+      {!loading && unidad && (
+        <div className="kpi-unidad">{unidad}</div>
       )}
 
       {!loading && delta !== null && delta !== undefined && (
