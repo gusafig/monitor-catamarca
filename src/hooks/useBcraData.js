@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
 const MONETARIAS_BASE = "https://api.bcra.gob.ar/estadisticas/v4.0/monetarias";
-const CAMBIARIAS_BASE = "https://api.bcra.gob.ar/estadisticascambiarias/v1.0/Cotizaciones";
+// Usamos nuestro proxy en Vercel para evitar el bloqueo CORS de la API del BCRA
+const CAMBIARIAS_BASE = "/api/bcra-cambiaria";
 
 // ── HELPERS DE FECHA ──────────────────────────────────────────────
 function fechaHace(dias) {
@@ -81,6 +82,7 @@ export function useBcraCambiaria(moneda, diasAtras = 365) {
     const desde = fechaHace(diasAtras);
     const hasta  = new Date().toISOString().slice(0, 10);
     const url    = `${CAMBIARIAS_BASE}/${moneda}?fechadesde=${desde}&fechahasta=${hasta}&limit=1000`;
+    // → llama a /api/bcra-cambiaria/USD?fechadesde=...&fechahasta=...&limit=1000
 
     fetch(url)
       .then((res) => {
