@@ -381,12 +381,17 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
 
   const ultimoPeriodo = formatPeriodo(ultimoPeriodoRaw);
 
+  // Resolver unidad: puede ser string estático o función que recibe el último periodo
+  const unidadResuelta = typeof indicador.unidad === "function"
+    ? indicador.unidad(ultimoPeriodoRaw)
+    : indicador.unidad;
+
   return (
     <button
       className="dash-card"
       style={{ "--dash-color": color }}
       onClick={() => onVerDetalle(indicador)}
-      title={indicador.descripcion}
+      title={typeof indicador.descripcion === "function" ? indicador.descripcion(ultimoPeriodoRaw) : indicador.descripcion}
     >
       <div className="dash-card-top">
         <span className="dash-card-badge" style={{ background: color + "18", color }}>
@@ -396,7 +401,7 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
       <div className="dash-card-nombre">{indicador.nombre}</div>
       <div className={"dash-card-valor" + (loading ? " loading" : "")}>{formatted}</div>
       <div className="dash-card-periodo">
-        <span className="dash-card-unidad">{indicador.unidad}</span>
+        <span className="dash-card-unidad">{unidadResuelta}</span>
         <span className="dash-card-ref">{ultimoPeriodo}</span>
       </div>
       <div className="dash-card-cta">Ver gráfico →</div>
@@ -463,7 +468,7 @@ function GlosarioVariables() {
                   >
                     <div className="glosario-item-header">
                       <span className="glosario-item-nombre">{v.nombre}</span>
-                      <span className="glosario-item-unidad">{v.unidad}</span>
+                      <span className="glosario-item-unidad">{typeof v.unidad === "function" ? v.unidad("") : v.unidad}</span>
                       <span className="glosario-item-toggle">{abierta === v.id ? "−" : "+"}</span>
                     </div>
                     {abierta === v.id && (
@@ -487,24 +492,12 @@ function GlosarioVariables() {
 }
 
 // ── MONITOR / DASHBOARD ───────────────────────────────────────────
-function Monitor({ seccionInicial }) {
-  const [vista, setVista] = useState("dashboard");
-  const [indicadorActivo, setIndicadorActivo] = useState(null);
-
-  function verDetalle(indicador) {
-    setIndicadorActivo(indicador);
-    setVista("detalle");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  function volverDashboard() {
-    setVista("dashboard");
-    setIndicadorActivo(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  if (vista === "detalle" && indicadorActivo) {
-    return <DetalleVariable indicador={indicadorActivo} onVolver={volverDashboard} />;
+function Monitor({ seccionInicial, indicadorDetalleId, onVerDetalle, onVolverDashboard }) {
+  if (indicadorDetalleId) {
+    const indicador = CONFIG.indicadores.find((i) => i.id === indicadorDetalleId);
+    if (indicador) {
+      return <DetalleVariable indicador={indicador} onVolver={onVolverDashboard} />;
+    }
   }
 
   return (
@@ -523,7 +516,7 @@ function Monitor({ seccionInicial }) {
       <div className="main-inner" style={{ paddingTop: "1.75rem", paddingBottom: "1rem" }}>
         <div className="dash-grid">
           {CONFIG.indicadores.map((ind) => (
-            <DashboardCardLoader key={ind.id} indicador={ind} onVerDetalle={verDetalle} />
+            <DashboardCardLoader key={ind.id} indicador={ind} onVerDetalle={() => onVerDetalle(ind)} />
           ))}
         </div>
       </div>
@@ -1096,6 +1089,7 @@ export default function App() {
   const [pagina, setPagina] = useState(() => {
     const path = window.location.pathname;
     if (path === "/admin") return "admin";
+    if (path.startsWith("/monitor/")) return "monitor";
     if (path === "/monitor") return "monitor";
     if (path.startsWith("/contenidos/")) return "articulo";
     if (path === "/contenidos") return "contenidos";
@@ -1107,6 +1101,10 @@ export default function App() {
   const [articuloId, setArticuloId] = useState(() => {
     const match = window.location.pathname.match(/^\/contenidos\/(.+)$/);
     return match ? Number(match[1]) : null;
+  });
+  const [indicadorDetalleId, setIndicadorDetalleId] = useState(() => {
+    const match = window.location.pathname.match(/^\/monitor\/(.+)$/);
+    return match ? match[1] : null;
   });
   const [items, setItems] = useState([]);
 
@@ -1123,7 +1121,14 @@ export default function App() {
     function handlePopState() {
       const path = window.location.pathname;
       if (path === "/admin") { setPagina("admin"); return; }
-      if (path === "/monitor") { setPagina("monitor"); setArticuloId(null); return; }
+      if (path.startsWith("/monitor/")) {
+        const match = path.match(/^\/monitor\/(.+)$/);
+        setIndicadorDetalleId(match ? match[1] : null);
+        setPagina("monitor");
+        setArticuloId(null);
+        return;
+      }
+      if (path === "/monitor") { setPagina("monitor"); setIndicadorDetalleId(null); setArticuloId(null); return; }
       if (path.startsWith("/contenidos/")) {
         const match = path.match(/^\/contenidos\/(.+)$/);
         if (match) { setArticuloId(Number(match[1])); setPagina("articulo"); }
@@ -1133,6 +1138,7 @@ export default function App() {
       if (path === "/bcra") { setPagina("bcra"); setArticuloId(null); return; }
       setPagina("inicio");
       setArticuloId(null);
+      setIndicadorDetalleId(null);
     }
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
@@ -1145,6 +1151,7 @@ export default function App() {
     if (seccion) setSeccionMonitor(seccion);
     setMenuAbierto(false);
     setArticuloId(null);
+    setIndicadorDetalleId(null);
     window.history.pushState({}, "", pag === "inicio" ? "/" : "/" + pag);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -1160,6 +1167,20 @@ export default function App() {
     setArticuloId(null);
     setPagina("contenidos");
     window.history.pushState({}, "", "/contenidos");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function verDetalleIndicador(indicador) {
+    setIndicadorDetalleId(indicador.id);
+    setPagina("monitor");
+    window.history.pushState({}, "", `/monitor/${indicador.id}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function volverDashboard() {
+    setIndicadorDetalleId(null);
+    setPagina("monitor");
+    window.history.pushState({}, "", "/monitor");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1183,7 +1204,7 @@ export default function App() {
               </button>
               <button
                 className={"nav-pill" + (pagina === "monitor" ? " nav-pill-active" : " nav-pill-inactive")}
-                onClick={() => navegarA("monitor")}
+                onClick={() => { navegarA("monitor"); }}
               >
                 Monitor
               </button>
@@ -1209,7 +1230,7 @@ export default function App() {
 
       <main className="main">
         {pagina === "inicio"     && <Inicio onNavigate={navegarA} ultimaActualizacion={ultimaActualizacion} />}
-        {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} />}
+        {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} indicadorDetalleId={indicadorDetalleId} onVerDetalle={verDetalleIndicador} onVolverDashboard={volverDashboard} />}
         {pagina === "contenidos" && (
           <Contenidos items={items} onVerArticulo={verArticulo} />
         )}
