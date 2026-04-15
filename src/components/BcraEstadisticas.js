@@ -67,25 +67,14 @@ export const VARIABLES_MONETARIAS = [
   },
   {
     tipo: "monetaria",
-    id: 7,
-    nombre: "Tasa de política monetaria",
-    unidad: "% TNA",
-    color: "#36aeac",
-    grafico: "linea",
-    varAnual: false,
-    formato: (v) => Number(v).toFixed(2) + "%",
-    descripcion: "Tasa de interés de política monetaria del BCRA.",
-  },
-  {
-    tipo: "monetaria",
-    id: 29,
-    nombre: "TAMAR",
+    id: 30,
+    nombre: "TAMAR (bancos privados)",
     unidad: "% TNA",
     color: "#e67e22",
     grafico: "linea",
     varAnual: false,
     formato: (v) => Number(v).toFixed(2) + "%",
-    descripcion: "Tasa Activa para el Mercado Regulado (TAMAR), publicada diariamente por el BCRA.",
+    descripcion: "Tasa Activa para el Mercado Regulado (TAMAR) correspondiente a bancos privados, publicada diariamente por el BCRA.",
   },
  ];
 
