@@ -169,29 +169,15 @@ function BcraKpiCard({ variable, activa, onClick }) {
   const varAnio     = variable.varAnual ? bcraVarAnual(data) : null;
   const varAbs      = variable.varAbsoluta ? bcraVarAbsoluta(data) : null;
 
-  // Reservas: variación absoluta en millones de USD respecto al día hábil previo
+  // Solo Reservas internacionales muestra badge (varAbsoluta: true).
+  // Ninguna otra variable tiene cálculo adicional.
   const tieneVarAbs = varAbs !== null && variable.varAbsoluta;
-  // Inflación mensual: variación respecto al mes anterior (varPer)
-  // Resto: sin badge de variación
-  const mostrarVarPer = !tieneVarAbs && !variable.varAnual && !variable.sinVariacion;
-  const varDisplay  = tieneVarAbs ? null : varAnio !== null ? varAnio : mostrarVarPer ? varPer : null;
-  const varNum      = varDisplay !== null ? parseFloat(varDisplay) : null;
 
-  const varColor =
-    tieneVarAbs
-      ? varAbs > 0 ? "var(--color-up)" : varAbs < 0 ? "var(--color-down)" : "var(--color-flat)"
-      : varNum === null ? "var(--color-flat)"
-      : varNum > 0     ? "var(--color-up)"
-      :                  "var(--color-down)";
-
-  const varLabel = tieneVarAbs
-    ? "var. día hábil previo"
-    : varAnio !== null ? "var. interanual" : "var. respecto mes ant.";
-
-  // Formato del badge: absoluto para reservas, porcentual para el resto
+  const varColor = varAbs > 0 ? "var(--color-up)" : varAbs < 0 ? "var(--color-down)" : "var(--color-flat)";
+  const varLabel = "var. día hábil previo";
   const varBadgeText = tieneVarAbs
     ? (varAbs > 0 ? "+" : "") + Number(varAbs).toLocaleString("es-AR", { maximumFractionDigits: 0 }) + " M USD"
-    : varNum !== null ? (varNum > 0 ? "+" : "") + varDisplay + "%" : null;
+    : null;
 
   return (
     <button
