@@ -67,14 +67,14 @@ export const VARIABLES_MONETARIAS = [
   },
   {
     tipo: "monetaria",
-    id: 30,
+    id: 44,
     nombre: "TAMAR (bancos privados)",
     unidad: "% TNA",
     color: "#e67e22",
     grafico: "linea",
     varAnual: false,
     formato: (v) => Number(v).toFixed(2) + "%",
-    descripcion: "Tasa Activa para el Mercado Regulado (TAMAR) correspondiente a bancos privados, publicada diariamente por el BCRA.",
+    descripcion: "Tasa Activa para el Mercado Regulado (TAMAR) de bancos privados, publicada diariamente por el BCRA.",
   },
  ];
 
