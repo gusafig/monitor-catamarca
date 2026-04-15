@@ -4,6 +4,26 @@
 //  Cada variable apunta a un CSV en /public/data/
 // ============================================================
 
+// ----------------------------------------------------------
+//  HELPER: convierte "YYYY-M" → "mes de YYYY" en español
+//  Usado por unidad y descripcion dinámicas.
+// ----------------------------------------------------------
+const MESES_ES = [
+  "enero","febrero","marzo","abril","mayo","junio",
+  "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+
+export function periodoATexto(periodoRaw) {
+  if (!periodoRaw) return "";
+  const str = String(periodoRaw).trim();
+  const match = str.match(/^(\d{4})-(\d{1,2})$/);
+  if (match) {
+    const mes = MESES_ES[parseInt(match[2], 10) - 1];
+    return mes ? `${mes} de ${match[1]}` : str;
+  }
+  return str;
+}
+
 export const CONFIG = {
   titulo: "Catamarca en datos",
   subtitulo: "Dashboard de variables socioeconómicas",
@@ -66,7 +86,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Despachos de naftas a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
+      descripcion: (p) => `Despachos de naftas a la Provincia de Catamarca. Datos al ${periodoATexto(p)}. Fuente: Ministerio de Economía.`,
     },
     {
       id: "variable10",
@@ -78,7 +98,7 @@ export const CONFIG = {
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
       periodo: "mes",
-      descripcion: "Despachos de gas oil a la Provincia de Catamarca. Fuente: Ministerio de Economía.",
+      descripcion: (p) => `Despachos de gas oil a la Provincia de Catamarca. Datos al ${periodoATexto(p)}. Fuente: Ministerio de Economía.`,
     },
     {
       id: "variable3",
@@ -98,8 +118,7 @@ export const CONFIG = {
       id: "variable4",
       seccion: "finanzas",
       nombre: "Ingresos tributarios de origen nacional a precios constantes",
-      unidad: "millones de pesos de marzo 2026",
-      archivo: "ingresostribnac.csv",
+      unidad: (p) => `millones de pesos de ${periodoATexto(p)}`,
       tipo: "linea",
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
@@ -110,7 +129,7 @@ export const CONFIG = {
       id: "variable5",
       seccion: "finanzas",
       nombre: "Ingresos corrientes del gobierno provincial a precios constantes",
-      unidad: "millones de pesos de marzo 2026",
+      unidad: (p) => `millones de pesos de ${periodoATexto(p)}`,
       archivo: "ingcorrientes.csv",
       tipo: "linea",
       kpi: true,
@@ -123,7 +142,7 @@ export const CONFIG = {
       id: "variable6",
       seccion: "finanzas",
       nombre: "Gastos corrientes del gobierno provincial a precios constantes",
-      unidad: "millones de pesos de marzo 2026",
+      unidad: (p) => `millones de pesos de ${periodoATexto(p)}`,
       archivo: "gtoscorrientes.csv",
       tipo: "linea",
       kpi: true,
