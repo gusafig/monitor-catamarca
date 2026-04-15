@@ -50,6 +50,7 @@ export const VARIABLES_MONETARIAS = [
     color: "#e6322e",
     grafico: "barra",
     varAnual: false,
+    sinVariacion: true,
     formato: (v) => Number(v).toFixed(1) + "%",
     descripcion: "Variación mensual del Índice de Precios al Consumidor. Fuente: INDEC vía BCRA.",
   },
@@ -74,6 +75,17 @@ export const VARIABLES_MONETARIAS = [
     varAnual: false,
     formato: (v) => Number(v).toFixed(2) + "%",
     descripcion: "Tasa de interés de política monetaria del BCRA.",
+  },
+  {
+    tipo: "monetaria",
+    id: 29,
+    nombre: "TAMAR",
+    unidad: "% TNA",
+    color: "#e67e22",
+    grafico: "linea",
+    varAnual: false,
+    formato: (v) => Number(v).toFixed(2) + "%",
+    descripcion: "Tasa Activa para el Mercado Regulado (TAMAR), publicada diariamente por el BCRA.",
   },
  ];
 
@@ -161,7 +173,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
   const tieneVarAbs = varAbs !== null && variable.varAbsoluta;
   // Inflación mensual: variación respecto al mes anterior (varPer)
   // Resto: sin badge de variación
-  const mostrarVarPer = !tieneVarAbs && !variable.varAnual && variable.id === 27;
+  const mostrarVarPer = !tieneVarAbs && !variable.varAnual && !variable.sinVariacion;
   const varDisplay  = tieneVarAbs ? null : varAnio !== null ? varAnio : mostrarVarPer ? varPer : null;
   const varNum      = varDisplay !== null ? parseFloat(varDisplay) : null;
 
