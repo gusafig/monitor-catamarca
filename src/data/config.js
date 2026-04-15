@@ -119,6 +119,7 @@ export const CONFIG = {
       seccion: "finanzas",
       nombre: "Ingresos tributarios de origen nacional a precios constantes",
       unidad: (p) => `millones de pesos de ${periodoATexto(p)}`,
+      archivo: "ingresostribnac.csv",
       tipo: "linea",
       kpi: true,
       formato: (v) => Number(v).toLocaleString('es-AR', { maximumFractionDigits: 2 }),
