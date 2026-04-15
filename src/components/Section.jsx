@@ -70,6 +70,17 @@ function KPICardLoader({ indicador, color }) {
     return str;
   }
 
+  // Resolver unidad y descripcion: pueden ser string o función (p) => string
+  const unidadResuelta =
+    typeof indicador.unidad === "function"
+      ? indicador.unidad(ultimoPeriodoRaw)
+      : indicador.unidad;
+
+  const descripcionResuelta =
+    typeof indicador.descripcion === "function"
+      ? indicador.descripcion(ultimoPeriodoRaw)
+      : indicador.descripcion;
+
   return (
     <KPICard
       label={indicador.nombre}
@@ -77,13 +88,10 @@ function KPICardLoader({ indicador, color }) {
       delta={delta}
       color={color}
       loading={loading}
-      tooltip={
-        typeof indicador.descripcion === "function"
-          ? indicador.descripcion(ultimoPeriodoRaw)
-          : indicador.descripcion
-      }
+      tooltip={descripcionResuelta}
       periodo={formatPeriodo(ultimoPeriodoRaw)}
       icono={indicador.icono}
+      unidad={unidadResuelta}
     />
   );
 }
