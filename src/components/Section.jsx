@@ -77,7 +77,11 @@ function KPICardLoader({ indicador, color }) {
       delta={delta}
       color={color}
       loading={loading}
-      tooltip={indicador.descripcion}
+      tooltip={
+        typeof indicador.descripcion === "function"
+          ? indicador.descripcion(ultimoPeriodoRaw)
+          : indicador.descripcion
+      }
       periodo={formatPeriodo(ultimoPeriodoRaw)}
       icono={indicador.icono}
     />
@@ -101,13 +105,24 @@ function ChartLoader({ indicador, seccionId }) {
   // Si los datos son diarios, agruparlos por mes para el gráfico
   const dataFinal = indicador.frecuencia === "diaria" ? agruparPorMes(data) : data;
 
+  // Resolver unidad dinámica con el último período disponible
+  const ultimoPeriodoChart =
+    dataFinal && dataFinal.length > 0
+      ? dataFinal[dataFinal.length - 1].periodo || dataFinal[dataFinal.length - 1].año || null
+      : null;
+
+  const unidadResuelta =
+    typeof indicador.unidad === "function"
+      ? indicador.unidad(ultimoPeriodoChart)
+      : indicador.unidad;
+
   return (
     <ChartCard
       tipo={indicador.tipo}
       data={dataFinal}
       seccion={seccionId}
       nombre={indicador.nombre}
-      unidad={indicador.unidad}
+      unidad={unidadResuelta}
       loading={loading}
       series={indicador.series}
     />
