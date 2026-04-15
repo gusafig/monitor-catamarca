@@ -6,7 +6,6 @@ import {
 } from "recharts";
 import {
   useBcraMonetaria,
-  useBcraCambiaria,
   bcraUltimo,
   bcraUltimaFecha,
   bcraVarPeriodo,
@@ -76,52 +75,27 @@ export const VARIABLES_MONETARIAS = [
     formato: (v) => Number(v).toFixed(2) + "%",
     descripcion: "Tasa Activa para el Mercado Regulado (TAMAR) de bancos privados, publicada diariamente por el BCRA.",
   },
- ];
-
-export const VARIABLES_CAMBIARIAS = [
   {
-    tipo: "cambiaria",
-    id: "USD",
-    nombre: "Dólar estadounidense",
-    unidad: "$ por USD",
-    color: "#2c7a2c",
+    tipo: "monetaria",
+    id: 40,
+    nombre: "UVA",
+    unidad: "pesos",
+    color: "#1a7abf",
     grafico: "linea",
     varAnual: false,
     formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    descripcion: "Tipo de cambio de referencia del dólar estadounidense publicado por el BCRA.",
+    descripcion: "Unidad de Valor Adquisitivo (UVA). Índice de actualización publicado diariamente por el BCRA, utilizado en créditos hipotecarios y otros instrumentos financieros.",
   },
   {
-    tipo: "cambiaria",
-    id: "EUR",
-    nombre: "Euro",
-    unidad: "$ por EUR",
-    color: "#2980b9",
+    tipo: "monetaria",
+    id: 30,
+    nombre: "CER",
+    unidad: "índice",
+    color: "#2ecc71",
     grafico: "linea",
     varAnual: false,
-    formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    descripcion: "Tipo de cambio de referencia del euro publicado por el BCRA.",
-  },
-  {
-    tipo: "cambiaria",
-    id: "BRL",
-    nombre: "Real brasileño",
-    unidad: "$ por BRL",
-    color: "#d4a017",
-    grafico: "linea",
-    varAnual: false,
-    formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    descripcion: "Tipo de cambio de referencia del real brasileño publicado por el BCRA.",
-  },
-  {
-    tipo: "cambiaria",
-    id: "CNY",
-    nombre: "Yuan chino",
-    unidad: "$ por CNY",
-    color: "#c0392b",
-    grafico: "linea",
-    varAnual: false,
-    formato: (v) => "$ " + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-    descripcion: "Tipo de cambio de referencia del yuan chino (renminbi) publicado por el BCRA.",
+    formato: (v) => Number(v).toLocaleString("es-AR", { minimumFractionDigits: 6, maximumFractionDigits: 6 }),
+    descripcion: "Coeficiente de Estabilización de Referencia (CER). Índice de actualización diaria basado en el IPC, publicado por el BCRA para contratos y títulos ajustados por inflación.",
   },
 ];
 
@@ -141,25 +115,12 @@ function formatFechaLarga(fechaStr) {
 
 // ── KPI CARD ──────────────────────────────────────────────────────
 function BcraKpiCard({ variable, activa, onClick }) {
-  const esMonetaria = variable.tipo === "monetaria";
-  const { data: dataM, loading: loadM } = useBcraMonetaria(
-    esMonetaria ? variable.id : null, 400
-  );
-  const { data: dataC, loading: loadC } = useBcraCambiaria(
-    !esMonetaria ? variable.id : null, 400
-  );
-
-  const data    = esMonetaria ? dataM : dataC;
-  const loading = esMonetaria ? loadM : loadC;
+  const { data, loading } = useBcraMonetaria(variable.id, 400);
 
   const ultimo      = bcraUltimo(data);
   const ultimaFecha = bcraUltimaFecha(data);
-  const varPer      = bcraVarPeriodo(data);
-  const varAnio     = variable.varAnual ? bcraVarAnual(data) : null;
   const varAbs      = variable.varAbsoluta ? bcraVarAbsoluta(data) : null;
 
-  // Solo Reservas internacionales muestra badge (varAbsoluta: true).
-  // Ninguna otra variable tiene cálculo adicional.
   const tieneVarAbs = varAbs !== null && variable.varAbsoluta;
 
   const varColor = varAbs > 0 ? "var(--color-up)" : varAbs < 0 ? "var(--color-down)" : "var(--color-flat)";
@@ -180,7 +141,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
           className="bcra-kpi-badge"
           style={{ background: variable.color + "18", color: variable.color }}
         >
-          {variable.tipo === "monetaria" ? "Monetaria" : "Cambiaria"}
+          Monetaria
         </span>
         {varBadgeText && (
           <span className="bcra-kpi-var" style={{ color: varColor }}>
@@ -210,17 +171,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
 
 // ── GRÁFICO DE DETALLE ────────────────────────────────────────────
 function BcraGrafico({ variable }) {
-  const esMonetaria = variable.tipo === "monetaria";
-  const { data: dataM, loading: loadM, error: errM } = useBcraMonetaria(
-    esMonetaria ? variable.id : null, 730
-  );
-  const { data: dataC, loading: loadC, error: errC } = useBcraCambiaria(
-    !esMonetaria ? variable.id : null, 730
-  );
-
-  const data    = esMonetaria ? dataM : dataC;
-  const loading = esMonetaria ? loadM : loadC;
-  const error   = esMonetaria ? errM  : errC;
+  const { data, loading, error } = useBcraMonetaria(variable.id, 730);
 
   const chartData = data.map((d) => ({
     fecha: formatFechaCorta(d.fecha),
@@ -320,17 +271,7 @@ function BcraGrafico({ variable }) {
 
 // ── PÁGINA PRINCIPAL ──────────────────────────────────────────────
 export default function BcraEstadisticas() {
-  const [tab, setTab]                       = useState("monetarias"); // "monetarias" | "cambiarias"
   const [variableActiva, setVariableActiva] = useState(VARIABLES_MONETARIAS[0]);
-
-  function cambiarTab(nuevoTab) {
-    setTab(nuevoTab);
-    setVariableActiva(
-      nuevoTab === "monetarias" ? VARIABLES_MONETARIAS[0] : VARIABLES_CAMBIARIAS[0]
-    );
-  }
-
-  const variables = tab === "monetarias" ? VARIABLES_MONETARIAS : VARIABLES_CAMBIARIAS;
 
   return (
     <div className="bcra-page">
@@ -352,25 +293,9 @@ export default function BcraEstadisticas() {
 
       <div className="main-inner" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
 
-        {/* ── TABS ───────────────────────────────────────────────── */}
-        <div className="bcra-tabs">
-          <button
-            className={"bcra-tab" + (tab === "monetarias" ? " bcra-tab--activa" : "")}
-            onClick={() => cambiarTab("monetarias")}
-          >
-            Variables monetarias
-          </button>
-          <button
-            className={"bcra-tab" + (tab === "cambiarias" ? " bcra-tab--activa" : "")}
-            onClick={() => cambiarTab("cambiarias")}
-          >
-            Variables cambiarias
-          </button>
-        </div>
-
         {/* ── GRILLA DE KPI CARDS ─────────────────────────────────── */}
         <div className="bcra-kpi-grid">
-          {variables.map((v) => (
+          {VARIABLES_MONETARIAS.map((v) => (
             <BcraKpiCard
               key={v.id}
               variable={v}
