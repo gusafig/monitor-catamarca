@@ -419,10 +419,21 @@ a { text-decoration: none; }
   background: var(--bg-primary);
   padding: 1rem 1.1rem;
   cursor: default;
-  transition: background 0.12s;
   min-width: 160px;
+  /* scroll reveal */
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.34,1.56,0.64,1), background 0.2s, box-shadow 0.22s ease;
 }
-.kpi-card:hover { background: var(--bg-secondary); }
+.kpi-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.kpi-card:hover {
+  background: var(--bg-secondary);
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+}
 .kpi-label {
   font-size: 10px;
   font-weight: 500;
@@ -465,6 +476,12 @@ a { text-decoration: none; }
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+.kpi-skeleton--sm {
+  height: 12px;
+  width: 55%;
+  margin-bottom: 0;
 }
 .kpi-icono {
   margin-bottom: 0.5rem;
@@ -488,8 +505,19 @@ a { text-decoration: none; }
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.1rem 1.2rem 0.85rem;
+  /* scroll reveal */
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.25s ease, border-color 0.25s ease;
 }
-.chart-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.chart-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.chart-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+  border-color: rgba(136,135,128,0.35);
+}
 .chart-title {
   font-size: 11px;
   font-weight: 600;
@@ -504,12 +532,30 @@ a { text-decoration: none; }
   color: var(--text-tertiary);
   margin-bottom: 0.6rem;
 }
+.chart-skeleton-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
 .chart-skeleton {
-  height: 180px;
+  height: 140px;
   background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: var(--radius-sm);
+}
+.chart-skeleton-line {
+  height: 10px;
+  width: 40%;
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--border-color) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite 0.2s;
+  border-radius: var(--radius-sm);
+}
+.chart-skeleton-line--sm {
+  width: 25%;
+  animation-delay: 0.35s;
 }
 .chart-empty {
   height: 180px;
@@ -549,6 +595,17 @@ a { text-decoration: none; }
   transition: opacity 0.15s;
 }
 .footer-mail:hover { color: #ffffff; }
+.footer-instagram {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-instagram:hover { color: #e1306c; }
 .footer-copy {
   font-size: 11px;
   color: rgba(255,255,255,0.4);
@@ -713,6 +770,23 @@ a { text-decoration: none; }
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* Delay escalonado en las KPI cards (efecto cascada) */
+.kpis-grid .kpi-card:nth-child(1) { transition-delay: 0s; }
+.kpis-grid .kpi-card:nth-child(2) { transition-delay: 0.07s; }
+.kpis-grid .kpi-card:nth-child(3) { transition-delay: 0.14s; }
+.kpis-grid .kpi-card:nth-child(4) { transition-delay: 0.21s; }
+.kpis-grid .kpi-card:nth-child(5) { transition-delay: 0.28s; }
+.kpis-grid .kpi-card:nth-child(6) { transition-delay: 0.35s; }
+
+/* Delay escalonado en los chart cards */
+.charts-grid .chart-card:nth-child(1) { transition-delay: 0.05s; }
+.charts-grid .chart-card:nth-child(2) { transition-delay: 0.15s; }
+.charts-grid .chart-card:nth-child(3) { transition-delay: 0.25s; }
+.charts-grid .chart-card:nth-child(4) { transition-delay: 0.35s; }
+.charts-grid .chart-card:nth-child(5) { transition-delay: 0.42s; }
+.charts-grid .chart-card:nth-child(6) { transition-delay: 0.49s; }
+
 .inicio-hero > .inicio-hero-inner > *,
 .inicio-hero-inner > * {
   animation: fadeUp 0.6s ease both;
