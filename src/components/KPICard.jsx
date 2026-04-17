@@ -1,4 +1,5 @@
 import React from "react";
+import { useScrollReveal } from "../hooks/useScrollReveal";
 
 // Íconos SVG inline por clave
 const ICONOS = {
@@ -30,10 +31,12 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
   const isUp = deltaNum > 0;
   const isDown = deltaNum < 0;
   const IconoEl = icono && ICONOS[icono] ? ICONOS[icono] : null;
+  const [ref, isVisible] = useScrollReveal();
 
   return (
     <div
-      className="kpi-card"
+      ref={ref}
+      className={`kpi-card${isVisible ? " kpi-card--visible" : ""}`}
       title={tooltip || ""}
       style={{ borderTop: `3px solid ${color}` }}
     >
@@ -45,7 +48,10 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
       <div className="kpi-label">{label}</div>
 
       {loading ? (
-        <div className="kpi-skeleton" />
+        <>
+          <div className="kpi-skeleton" />
+          <div className="kpi-skeleton kpi-skeleton--sm" />
+        </>
       ) : (
         <div className="kpi-value">{value ?? "—"}</div>
       )}
