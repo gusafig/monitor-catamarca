@@ -1254,6 +1254,20 @@ export default function App() {
             <a href="mailto:synergiaconsult76@gmail.com" className="footer-mail">
               synergiaconsult76@gmail.com
             </a>
+            <a
+              href="https://www.instagram.com/synergiacatamarca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-instagram"
+              aria-label="Instagram de Synergia Catamarca"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+              </svg>
+              <span>@synergiacatamarca</span>
+            </a>
             <div className="footer-copy">© {new Date().getFullYear()} Synergia Consultores</div>
           </div>
         </footer>
