@@ -265,7 +265,7 @@ function ContactForm() {
 }
 
 // ── INICIO ───────────────────────────────────────────────────────
-function Inicio({ onNavigate, ultimaActualizacion }) {
+function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
   return (
     <div className="inicio-page">
 
@@ -314,22 +314,43 @@ function Inicio({ onNavigate, ultimaActualizacion }) {
       {/* ── PULSO ECONÓMICO ─────────────────────────────────────── */}
       <PulsoEconomico onNavigate={onNavigate} />
 
-      {/* ── CARDS DE SECCIONES ──────────────────────────────────── */}
-      <div className="inicio-cards">
-        {CONFIG.secciones.map((s) => {
-          const indicadoresSec = CONFIG.indicadores.filter((i) => i.seccion === s.id);
-          return (
-            <button key={s.id} className="inicio-card"
-              onClick={() => onNavigate("monitor", s.id)}
-              style={{ "--card-color": s.color }}>
-              <span className="inicio-card-dot" />
-              <span className="inicio-card-name">{s.label}</span>
-              <span className="inicio-card-count">{indicadoresSec.length} indicadores</span>
-              <span className="inicio-card-arrow">→</span>
+      {/* ── ÚLTIMOS INFORMES ────────────────────────────────────── */}
+      {items && items.length > 0 && (
+        <div className="inicio-informes">
+          <div className="inicio-informes-header">
+            <div>
+              <p className="inicio-informes-eyebrow">Publicaciones recientes</p>
+              <h2 className="inicio-informes-titulo">Últimos informes</h2>
+            </div>
+            <button className="inicio-informes-ver-todos" onClick={() => onNavigate("contenidos")}>
+              Ver todos los informes →
             </button>
-          );
-        })}
-      </div>
+          </div>
+          <div className="inicio-informes-grid">
+            {items.slice(0, 3).map((item, idx) => (
+              <button
+                key={item.id}
+                className={"inicio-informe-card" + (idx === 0 ? " inicio-informe-card--featured" : "")}
+                onClick={() => onVerArticulo ? onVerArticulo(item.id) : onNavigate("contenidos")}
+              >
+                <div className="inicio-informe-meta">
+                  {item.categoria && (
+                    <span className="inicio-informe-tag">{item.categoria}</span>
+                  )}
+                  <span className="inicio-informe-fecha">
+                    {item.fecha ? new Date(item.fecha + "T12:00:00").toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" }) : ""}
+                  </span>
+                </div>
+                <h3 className="inicio-informe-titulo">{item.titulo}</h3>
+                {item.bajada && (
+                  <p className="inicio-informe-bajada">{item.bajada}</p>
+                )}
+                <span className="inicio-informe-cta">Leer informe →</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── SECCIÓN CONTACTO ────────────────────────────────────── */}
       <section id="contacto" className="contacto-section">
@@ -1250,7 +1271,7 @@ export default function App() {
       )}
 
       <main className="main">
-        {pagina === "inicio"     && <Inicio onNavigate={navegarA} ultimaActualizacion={ultimaActualizacion} />}
+        {pagina === "inicio"     && <Inicio onNavigate={navegarA} ultimaActualizacion={ultimaActualizacion} items={items} onVerArticulo={verArticulo} />}
         {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} indicadorDetalleId={indicadorDetalleId} onVerDetalle={verDetalleIndicador} onVolverDashboard={volverDashboard} />}
         {pagina === "contenidos" && (
           <TimelineContenidos items={items} onVerArticulo={verArticulo} />
