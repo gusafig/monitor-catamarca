@@ -50,11 +50,11 @@ function agruparPorAnio(items) {
 // Si no existe, los filtros simplemente no hacen nada perjudicial.
 const FILTROS = [
   { id: "todos", label: "Todas" },
-  { id: "inflacion", label: "Inflación" },
+  { id: "exportaciones", label: "Exportaciones" },
+  { id: "finanzas", label: "Finanzas Públicas" },
   { id: "empleo", label: "Empleo" },
-  { id: "mineria", label: "Minería" },
   { id: "fiscal", label: "Fiscal" },
-  { id: "comercio", label: "Comercio" },
+  { id: "otros", label: "Otros" },
 ];
 
 // ── Dot de la línea de tiempo ─────────────────────────────────────
