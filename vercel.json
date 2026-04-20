@@ -2,7 +2,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "framework": "create-react-app",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "crons": [
     {
       "path": "/api/ping-supabase",
@@ -19,7 +24,6 @@
         }
       ]
     }
-  ]
+  ],
+  "installCommand": "npm install --legacy-peer-deps"
 }
-
-
