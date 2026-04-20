@@ -835,6 +835,7 @@ function Admin({ items, setItems, onSalir }) {
       titulo: "",
       bajada: "",
       fecha: new Date().toISOString().slice(0, 10),
+      categoria: "",
       bloques: [{ tipo: "texto", contenido: "" }],
       imagen: "",
       imagen_articulo: "",
@@ -957,6 +958,21 @@ function Admin({ items, setItems, onSalir }) {
 
             <label className="admin-label">Fecha</label>
             <input className="admin-input" type="date" value={form.fecha} onChange={(e) => setForm({ ...form, fecha: e.target.value })} />
+
+            <label className="admin-label">Categoría</label>
+            <p className="admin-hint">Usada para filtrar publicaciones en la sección Contenidos.</p>
+            <select
+              className="admin-input"
+              value={form.categoria || ""}
+              onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+            >
+              <option value="">— Sin categoría —</option>
+              <option value="Inflación">Inflación</option>
+              <option value="Empleo">Empleo</option>
+              <option value="Minería">Minería</option>
+              <option value="Fiscal">Fiscal</option>
+              <option value="Comercio">Comercio</option>
+            </select>
 
             {/* ── EDITOR DE BLOQUES ─────────────────────────── */}
             <label className="admin-label" style={{ marginTop: "1.5rem" }}>
