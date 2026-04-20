@@ -53,7 +53,7 @@ const FILTROS = [
   { id: "exportaciones", label: "Exportaciones" },
   { id: "finanzas", label: "Finanzas Públicas" },
   { id: "empleo", label: "Empleo" },
-  { id: "fiscal", label: "Fiscal" },
+  { id: "durables", label: "Bienes durables" },
   { id: "otros", label: "Otros" },
 ];
 
