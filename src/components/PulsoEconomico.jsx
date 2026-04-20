@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import { useCsvData, agruparPorMes } from "./hooks/useCsvData";
-import { CONFIG, COLORES } from "./data/config";
+import { useCsvData, agruparPorMes } from "../hooks/useCsvData";
+import { CONFIG, COLORES } from "../data/config";
 
 // ── Helpers ───────────────────────────────────────────────────────
 
