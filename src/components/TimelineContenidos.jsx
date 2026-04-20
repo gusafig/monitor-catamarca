@@ -32,12 +32,11 @@ function agruparPorAnio(items) {
 // Filtros actualizados para reflejar la nueva nomenclatura de Informes
 const FILTROS = [
   { id: "todos", label: "Todos" },
-  { id: "Informe mensual", label: "Informes mensuales" },
-  { id: "Análisis especial", label: "Análisis especiales" },
-  { id: "Empleo", label: "Empleo" },
-  { id: "Fiscal", label: "Fiscal" },
-  { id: "Minería", label: "Minería" },
-  { id: "Comercio", label: "Comercio" },
+  { id: "empleo", label: "Empleo" },
+  { id: "fiscal", label: "Fiscal" },
+  { id: "mineria", label: "Minería" },
+  { id: "bienes", label: "Bienes durables" },
+  { id: "otros", label: "Otros" },
 ];
 
 function TlDot({ isFirst }) {
