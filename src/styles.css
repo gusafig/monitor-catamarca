@@ -2023,3 +2023,33 @@ a { text-decoration: none; }
   .bcra-grafico-header { flex-direction: column; }
   .bcra-tab { font-size: 13px; padding: 0.5rem 0.8rem; }
 }
+
+/* ── BOTÓN INSTAGRAM (artículo) ──────────────────────────────── */
+.articulo-ig-btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.articulo-ig-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* Mensaje de confirmación IG */
+.articulo-ig-msg {
+  font-size: var(--text-xs);
+  color: var(--color-up);
+  background: rgba(29, 158, 117, 0.09);
+  border: 1px solid rgba(29, 158, 117, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
