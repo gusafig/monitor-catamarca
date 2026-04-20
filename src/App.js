@@ -4,6 +4,8 @@ import { useCsvData, lastValue } from "./hooks/useCsvData";
 import { Section } from "./components/Section";
 import { CONFIG } from "./data/config";
 import BcraEstadisticas from "./components/BcraEstadisticas";
+import PulsoEconomico from "./components/PulsoEconomico";
+import TimelineContenidos from "./components/TimelineContenidos";
 import "./styles.css";
 
 // ── SUPABASE ──────────────────────────────────────────────────────
@@ -308,6 +310,9 @@ function Inicio({ onNavigate, ultimaActualizacion }) {
           </div>
         </div>
       </div>
+
+      {/* ── PULSO ECONÓMICO ─────────────────────────────────────── */}
+      <PulsoEconomico onNavigate={onNavigate} />
 
       {/* ── CARDS DE SECCIONES ──────────────────────────────────── */}
       <div className="inicio-cards">
@@ -1232,7 +1237,7 @@ export default function App() {
         {pagina === "inicio"     && <Inicio onNavigate={navegarA} ultimaActualizacion={ultimaActualizacion} />}
         {pagina === "monitor"    && <Monitor seccionInicial={seccionMonitor} indicadorDetalleId={indicadorDetalleId} onVerDetalle={verDetalleIndicador} onVolverDashboard={volverDashboard} />}
         {pagina === "contenidos" && (
-          <Contenidos items={items} onVerArticulo={verArticulo} />
+          <TimelineContenidos items={items} onVerArticulo={verArticulo} />
         )}
         {pagina === "articulo"   && <Articulo item={articuloActual} onVolver={volverDeArticulo} />}
         {pagina === "bcra"       && <BcraEstadisticas />}
