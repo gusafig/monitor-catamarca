@@ -11,7 +11,6 @@ import {
   useRevealSection,
   useFooterReveal,
   useEyebrowReveal,
-  useContactoReveal,
 } from "./hooks/useScrollReveal";
 import "./styles.css";
 
@@ -273,13 +272,78 @@ function ContactForm() {
 
 // ── INICIO ───────────────────────────────────────────────────────
 function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
+
+  // Cuando items llega de Supabase, activar las animaciones de esa sección
+  useEffect(() => {
+    if (!items || items.length === 0) return;
+
+    // Pequeño delay para que React termine de renderizar las cards
+    const t = setTimeout(() => {
+      // Header de informes
+      const header = document.querySelector('.inicio-informes-header');
+      if (header) header.classList.add('inicio-informes-header--visible');
+
+      // Cards de informes con stagger
+      const cards = document.querySelectorAll('.inicio-informe-card');
+      cards.forEach((card, i) => {
+        setTimeout(() => {
+          card.classList.add('inicio-informe-card--visible');
+        }, i * 100);
+      });
+
+      // Eyebrow de informes
+      const eyebrow = document.querySelector('.inicio-informes-eyebrow');
+      if (eyebrow) eyebrow.classList.add('inicio-informes-eyebrow--visible');
+    }, 80);
+
+    return () => clearTimeout(t);
+  }, [items]);
+
+  // Contacto: activar cuando el componente monta (no depende de datos async)
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const left  = document.querySelector('.contacto-left');
+      const right = document.querySelector('.contacto-right');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            if (entry.target.classList.contains('contacto-left'))
+              entry.target.classList.add('contacto-left--visible');
+            if (entry.target.classList.contains('contacto-right'))
+              entry.target.classList.add('contacto-right--visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05 });
+
+      // Fallback: activar de todas formas a los 1.5s
+      const fallbacks = [];
+      if (left)  {
+        observer.observe(left);
+        fallbacks.push(setTimeout(() => left.classList.add('contacto-left--visible'), 1500));
+      }
+      if (right) {
+        observer.observe(right);
+        fallbacks.push(setTimeout(() => right.classList.add('contacto-right--visible'), 1500));
+      }
+
+      return () => {
+        observer.disconnect();
+        fallbacks.forEach(clearTimeout);
+      };
+    }, 100);
+
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="inicio-page">
 
       {/* ── HERO ────────────────────────────────────────────────── */}
       <div className="inicio-hero">
         <div className="inicio-hero-inner">
-          {/* Anillo decorativo interior — mejora visual #2 */}
+          {/* Anillo decorativo interior */}
           <div className="inicio-hero-deco" aria-hidden="true" />
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
           <h1 className="inicio-headline">
@@ -326,7 +390,7 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
       {/* ── ÚLTIMOS INFORMES ────────────────────────────────────── */}
       {items && items.length > 0 && (
         <div className="inicio-informes">
-          <div className="inicio-informes-header reveal-up">
+          <div className="inicio-informes-header">
             <div>
               <p className="inicio-informes-eyebrow">Publicaciones recientes</p>
               <h2 className="inicio-informes-titulo">Últimos informes</h2>
@@ -1221,12 +1285,10 @@ export default function App() {
   // ── ANIMACIONES DE SCROLL REVEAL ─────────────────────────────────
   useScrollReveal();
   useRevealSection(".inicio-card",         { staggerMs: 80 });
-  useRevealSection(".inicio-informe-card", { staggerMs: 80 });
   useRevealSection(".post-card",           { staggerMs: 70 });
   useRevealSection(".glosario-item",       { staggerMs: 40 });
   useFooterReveal();
   useEyebrowReveal();
-  useContactoReveal();
 
   function navegarA(pag, seccion) {
     setPagina(pag);
