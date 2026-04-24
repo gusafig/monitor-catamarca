@@ -391,6 +391,26 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
 // ── DASHBOARD CARD CON DATOS ──────────────────────────────────────
 function DashboardCardLoader({ indicador, onVerDetalle }) {
   const { data, loading } = useCsvData(indicador.archivo);
+  const cardRef = React.useRef(null);
+
+  // Animar la card cuando el dato ya cargó y la card está en el viewport
+  useEffect(() => {
+    if (loading || !cardRef.current) return;
+    const el = cardRef.current;
+    if (el.classList.contains("dash-card--visible")) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("dash-card--visible");
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.08 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading]);
   const val = lastValue(data, "valor");
   const formatted = !loading && val !== null && indicador.formato
     ? indicador.formato(val)
@@ -423,6 +443,7 @@ function DashboardCardLoader({ indicador, onVerDetalle }) {
 
   return (
     <button
+      ref={cardRef}
       className="dash-card"
       style={{ "--dash-color": color }}
       onClick={() => onVerDetalle(indicador)}
@@ -1201,7 +1222,6 @@ export default function App() {
   useScrollReveal();
   useRevealSection(".inicio-card",         { staggerMs: 80 });
   useRevealSection(".inicio-informe-card", { staggerMs: 80 });
-  useRevealSection(".dash-card",           { staggerMs: 60 });
   useRevealSection(".post-card",           { staggerMs: 70 });
   useRevealSection(".glosario-item",       { staggerMs: 40 });
   useFooterReveal();
