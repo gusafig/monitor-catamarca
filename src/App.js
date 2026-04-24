@@ -6,6 +6,13 @@ import { CONFIG } from "./data/config";
 import BcraEstadisticas from "./components/BcraEstadisticas";
 import PulsoEconomico from "./components/PulsoEconomico";
 import TimelineContenidos from "./components/TimelineContenidos";
+import {
+  useScrollReveal,
+  useRevealSection,
+  useFooterReveal,
+  useEyebrowReveal,
+  useContactoReveal,
+} from "./hooks/useScrollReveal";
 import "./styles.css";
 
 // ── SUPABASE ──────────────────────────────────────────────────────
@@ -272,6 +279,8 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
       {/* ── HERO ────────────────────────────────────────────────── */}
       <div className="inicio-hero">
         <div className="inicio-hero-inner">
+          {/* Anillo decorativo interior — mejora visual #2 */}
+          <div className="inicio-hero-deco" aria-hidden="true" />
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
           <h1 className="inicio-headline">
             Catamarca<br />
@@ -317,7 +326,7 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
       {/* ── ÚLTIMOS INFORMES ────────────────────────────────────── */}
       {items && items.length > 0 && (
         <div className="inicio-informes">
-          <div className="inicio-informes-header">
+          <div className="inicio-informes-header reveal-up">
             <div>
               <p className="inicio-informes-eyebrow">Publicaciones recientes</p>
               <h2 className="inicio-informes-titulo">Últimos informes</h2>
@@ -355,7 +364,7 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
       {/* ── SECCIÓN CONTACTO ────────────────────────────────────── */}
       <section id="contacto" className="contacto-section">
         <div className="contacto-inner">
-          <div className="contacto-copy">
+          <div className="contacto-copy contacto-left">
             <p className="contacto-eyebrow">Contacto</p>
             <h2 className="contacto-titulo">
               ¿Necesitás análisis<br />a medida?
@@ -369,7 +378,7 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
               synergiaconsult76@gmail.com
             </a>
           </div>
-          <div className="contacto-form-wrap">
+          <div className="contacto-form-wrap contacto-right">
             <ContactForm />
           </div>
         </div>
@@ -472,7 +481,7 @@ function GlosarioVariables() {
   return (
     <div className="glosario-section">
       <div className="main-inner">
-        <div className="glosario-header">
+        <div className="glosario-header reveal-up">
           <h3 className="glosario-titulo">Glosario de variables</h3>
           <p className="glosario-desc">
             Definición, unidad y periodicidad de cada indicador incluido en el monitor.
@@ -530,10 +539,10 @@ function Monitor({ seccionInicial, indicadorDetalleId, onVerDetalle, onVolverDas
     <div>
       <div className="monitor-header">
         <div className="monitor-header-inner">
-          <h2 className="monitor-title">
+          <h2 className="monitor-title reveal-down">
             Dashboard de variables <span className="accent">socioeconómicas</span>
           </h2>
-          <div className="header-meta">
+          <div className="header-meta reveal-down reveal-delay-1">
             <span className="header-fuente">{CONFIG.fuente}</span>
           </div>
         </div>
@@ -558,7 +567,7 @@ function Contenidos({ items, onVerArticulo }) {
     <div className="contenidos-page">
       <div className="monitor-header">
         <div className="monitor-header-inner">
-          <h2 className="monitor-title">Publicaciones</h2>
+          <h2 className="monitor-title reveal-down">Publicaciones</h2>
         </div>
       </div>
 
@@ -1187,6 +1196,17 @@ export default function App() {
   }, []); // eslint-disable-line
 
   const ultimaActualizacion = useUltimaActualizacion(items);
+
+  // ── ANIMACIONES DE SCROLL REVEAL ─────────────────────────────────
+  useScrollReveal();
+  useRevealSection(".inicio-card",         { staggerMs: 80 });
+  useRevealSection(".inicio-informe-card", { staggerMs: 80 });
+  useRevealSection(".dash-card",           { staggerMs: 60 });
+  useRevealSection(".post-card",           { staggerMs: 70 });
+  useRevealSection(".glosario-item",       { staggerMs: 40 });
+  useFooterReveal();
+  useEyebrowReveal();
+  useContactoReveal();
 
   function navegarA(pag, seccion) {
     setPagina(pag);
