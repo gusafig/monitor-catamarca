@@ -1115,3 +1115,455 @@ a { text-decoration: none; }
   │  y asegurarse que el img esté renderizado.      │
   └─────────────────────────────────────────────────┘
 */
+
+
+/* ══════════════════════════════════════════════════════
+   ANIMACIONES — SISTEMA COMPLETO
+   Scroll reveals + micro-interacciones + hero animado
+   Usa clases .reveal-* activadas por useScrollReveal.js
+══════════════════════════════════════════════════════ */
+
+/* ── KEYFRAMES ───────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeRight {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleFade {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes lineGrow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@keyframes heroRingRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes counterUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(54,174,172,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(54,174,172,0.15); }
+}
+
+/* ── CLASES BASE REVEAL (estado inicial: invisible) ──── */
+/* Se aplican desde JSX. El hook agrega --visible para activar */
+
+.reveal-up,
+.reveal-down,
+.reveal-left,
+.reveal-right,
+.reveal-scale {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.reveal-up    { transform: translateY(28px); }
+.reveal-down  { transform: translateY(-20px); }
+.reveal-left  { transform: translateX(32px); }
+.reveal-right { transform: translateX(-32px); }
+.reveal-scale { transform: scale(0.94); }
+
+/* Estado visible — la transición hace el trabajo */
+.reveal-up--visible,
+.reveal-down--visible,
+.reveal-left--visible,
+.reveal-right--visible,
+.reveal-scale--visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── DELAYS ESCALONADOS (stagger) ────────────────────── */
+/* Usá data-delay="N" en JSX o estas clases directamente */
+.reveal-delay-1 { transition-delay: 0.08s !important; }
+.reveal-delay-2 { transition-delay: 0.16s !important; }
+.reveal-delay-3 { transition-delay: 0.24s !important; }
+.reveal-delay-4 { transition-delay: 0.32s !important; }
+.reveal-delay-5 { transition-delay: 0.40s !important; }
+.reveal-delay-6 { transition-delay: 0.48s !important; }
+
+/* ── HERO: ANIMACIÓN DE ENTRADA ──────────────────────── */
+
+/* Anillo exterior — rotación lenta perpetua */
+.inicio-hero-inner::after {
+  animation: heroRingRotate 28s linear infinite;
+  transform-origin: center center;
+}
+
+/* Eyebrow: desliza desde abajo con fade */
+.inicio-eyebrow {
+  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+}
+
+/* Headline: más lento, más peso */
+.inicio-headline {
+  animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+}
+
+/* Línea separadora bajo headline — crece desde la izquierda */
+.inicio-headline::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 2px;
+  background: var(--color-teal);
+  margin-top: 1.25rem;
+  transform-origin: left;
+  animation: lineGrow 0.5s cubic-bezier(0.22,1,0.36,1) 0.7s both;
+}
+
+/* Descripción */
+.inicio-desc {
+  animation: fadeUp 0.65s cubic-bezier(0.22,1,0.36,1) 0.32s both;
+}
+
+/* CTAs */
+.inicio-cta-row {
+  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.44s both;
+}
+
+/* Stats — conteo animado via JS, reveal vía CSS */
+.inicio-stats {
+  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.56s both;
+}
+
+/* Cada stat con micro-delay */
+.inicio-stat:nth-child(1) { animation: counterUp 0.5s ease 0.65s both; }
+.inicio-stat:nth-child(3) { animation: counterUp 0.5s ease 0.75s both; }
+.inicio-stat:nth-child(5) { animation: counterUp 0.5s ease 0.85s both; }
+
+/* ── INICIO CARDS (sección bajo el hero) ─────────────── */
+
+.inicio-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22,1,0.36,1),
+    transform 0.5s cubic-bezier(0.22,1,0.36,1),
+    background 0.15s;
+}
+.inicio-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.inicio-card:nth-child(1) { transition-delay: 0.05s; }
+.inicio-card:nth-child(2) { transition-delay: 0.13s; }
+.inicio-card:nth-child(3) { transition-delay: 0.21s; }
+
+/* ── SECCIÓN INFORMES ────────────────────────────────── */
+
+/* Header de sección */
+.inicio-informes-header {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.inicio-informes-header--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Cards de informes con stagger */
+.inicio-informe-card {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.52s cubic-bezier(0.22,1,0.36,1),
+    transform 0.52s cubic-bezier(0.22,1,0.36,1),
+    background 0.15s;
+}
+.inicio-informe-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.inicio-informe-card:nth-child(1) { transition-delay: 0.06s; }
+.inicio-informe-card:nth-child(2) { transition-delay: 0.14s; }
+.inicio-informe-card:nth-child(3) { transition-delay: 0.22s; }
+
+/* Línea del eyebrow — crece al entrar en viewport */
+.inicio-informes-eyebrow::before {
+  transform-origin: left;
+  animation: none; /* se activa vía JS añadiendo la clase */
+}
+.inicio-informes-eyebrow--visible::before {
+  animation: lineGrow 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+}
+
+/* ── SECCIÓN CONTACTO ────────────────────────────────── */
+
+.contacto-eyebrow::before {
+  transform-origin: left;
+}
+.contacto-eyebrow--visible::before {
+  animation: lineGrow 0.4s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+}
+
+/* Columna izquierda — desde la derecha */
+.contacto-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.contacto-left--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Formulario — desde la izquierda */
+.contacto-right {
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1) 0.12s, transform 0.6s cubic-bezier(0.22,1,0.36,1) 0.12s;
+}
+.contacto-right--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── DASH CARDS ──────────────────────────────────────── */
+
+.dash-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  transition:
+    opacity 0.45s cubic-bezier(0.22,1,0.36,1),
+    transform 0.45s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.18s,
+    border-color 0.18s;
+}
+.dash-card--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+/* Hover sólo cuando visible */
+.dash-card--visible:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px) scale(1);
+  border-color: transparent;
+}
+
+/* ── POST CARDS ──────────────────────────────────────── */
+
+.post-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s cubic-bezier(0.22,1,0.36,1),
+    transform 0.5s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.18s;
+}
+.post-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.post-card--visible:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+/* ── MONITOR HEADER ──────────────────────────────────── */
+
+.monitor-header {
+  opacity: 0;
+  animation: fadeDown 0.5s cubic-bezier(0.22,1,0.36,1) 0.05s both;
+}
+/* Una vez montado el componente React, agregar clase .monitor-header--mounted
+   para disparar la animación de entrada */
+.monitor-header--mounted {
+  opacity: 1;
+}
+
+/* ── GLOSARIO ────────────────────────────────────────── */
+
+.glosario-item {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s cubic-bezier(0.22,1,0.36,1),
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.glosario-item--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── BCRA KPI CARDS ──────────────────────────────────── */
+
+.bcra-kpi-card {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s cubic-bezier(0.22,1,0.36,1),
+    box-shadow 0.18s,
+    border-color 0.18s;
+}
+.bcra-kpi-card--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.bcra-kpi-card--visible:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: var(--bcra-color, var(--color-secondary));
+}
+
+/* ── FOOTER ──────────────────────────────────────────── */
+
+.footer {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.footer--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── MICRO-INTERACCIONES GLOBALES ────────────────────── */
+
+/* Nav links — subrayado animado */
+.nav-btn {
+  position: relative;
+}
+.nav-btn::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 1rem;
+  right: 1rem;
+  height: 1.5px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.2s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-btn:hover::after,
+.nav-btn.active::after {
+  transform: scaleX(1);
+}
+
+/* CTA primario — efecto de brillo al hover */
+.inicio-cta {
+  position: relative;
+  overflow: hidden;
+}
+.inicio-cta::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+.inicio-cta:hover::after {
+  left: 150%;
+}
+
+/* Informe CTA link — flecha animada */
+.inicio-informe-cta::after {
+  content: " →";
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+.inicio-informe-card:hover .inicio-informe-cta::after {
+  transform: translateX(4px);
+}
+
+/* Tab buttons — indicador animado */
+.tab-btn {
+  position: relative;
+}
+
+/* Submit del formulario — loading state */
+.contact-submit--loading {
+  pointer-events: none;
+  opacity: 0.75;
+}
+.contact-submit--loading::after {
+  content: "";
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(17,17,17,0.3);
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── ACCESIBILIDAD: MOTION REDUCE ────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* Cancelar todas las animaciones de scroll reveal */
+  .reveal-up, .reveal-down, .reveal-left, .reveal-right, .reveal-scale,
+  .inicio-card, .inicio-informe-card, .inicio-informe-card,
+  .contacto-left, .contacto-right,
+  .dash-card, .post-card, .glosario-item,
+  .bcra-kpi-card, .footer {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: background 0.15s, box-shadow 0.15s, border-color 0.15s !important;
+    animation: none !important;
+  }
+
+  /* Cancelar animaciones del hero */
+  .inicio-eyebrow,
+  .inicio-headline,
+  .inicio-desc,
+  .inicio-cta-row,
+  .inicio-stats,
+  .inicio-stat,
+  .inicio-hero-inner::after {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Mantener solo transiciones de estado (hover, focus) */
+  .nav-btn::after,
+  .inicio-cta::after,
+  .inicio-informe-cta::after {
+    display: none;
+  }
+}
