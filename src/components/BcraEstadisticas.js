@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -116,6 +116,28 @@ function formatFechaLarga(fechaStr) {
 // ── KPI CARD ──────────────────────────────────────────────────────
 function BcraKpiCard({ variable, activa, onClick }) {
   const { data, loading } = useBcraMonetaria(variable.id, 400);
+  const cardRef = useRef(null);
+
+  // Animar la card cuando el dato ya cargó y la card está en el viewport
+  useEffect(() => {
+    if (loading || !cardRef.current) return;
+    const el = cardRef.current;
+
+    // Si ya es visible, no hacer nada
+    if (el.classList.contains("bcra-kpi-card--visible")) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("bcra-kpi-card--visible");
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading]);
 
   const ultimo      = bcraUltimo(data);
   const ultimaFecha = bcraUltimaFecha(data);
@@ -131,6 +153,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
 
   return (
     <button
+      ref={cardRef}
       className={"bcra-kpi-card" + (activa ? " bcra-kpi-card--activa" : "")}
       style={{ "--bcra-color": variable.color }}
       onClick={onClick}
