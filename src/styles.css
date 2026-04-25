@@ -180,6 +180,45 @@ a { text-decoration: none; }
   overflow: hidden;
 }
 
+/* ── ORBE DE LUZ FLOTANTE ────────────────────────────────────── */
+.inicio-hero-orb {
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(54,174,172,0.18) 0%,
+    rgba(54,174,172,0.07) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.85; }
+  30%       { transform: translate(-18px, 22px) scale(1.04); opacity: 1; }
+  60%       { transform: translate(12px, -14px) scale(0.97); opacity: 0.9; }
+}
+
+/* ── PULSO SUAVE EN NÚMEROS STAT ─────────────────────────────── */
+.inicio-stat-num {
+  animation: statPulse 4s ease-in-out infinite;
+  will-change: opacity;
+}
+.inicio-stat:nth-child(1) .inicio-stat-num { animation-delay: 0s; }
+.inicio-stat:nth-child(3) .inicio-stat-num { animation-delay: 1.3s; }
+.inicio-stat:nth-child(5) .inicio-stat-num { animation-delay: 2.6s; }
+
+@keyframes statPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
 /* MEJORA #2: Anillo exterior teal */
 .inicio-hero-inner::after {
   content: "";
@@ -1553,7 +1592,9 @@ a { text-decoration: none; }
   .inicio-cta-row,
   .inicio-stats,
   .inicio-stat,
-  .inicio-hero-inner::after {
+  .inicio-hero-inner::after,
+  .inicio-hero-orb,
+  .inicio-stat-num {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
