@@ -29,7 +29,6 @@ function agruparPorAnio(items) {
   return Object.entries(grupos).sort(([a], [b]) => b.localeCompare(a));
 }
 
-// Filtros actualizados para reflejar la nueva nomenclatura de Informes
 const FILTROS = [
   { id: "todos", label: "Todos" },
   { id: "empleo", label: "Empleo" },
@@ -71,7 +70,6 @@ function TlCard({ item, isFirst, onVerArticulo }) {
             {item.bajada && <p style={styles.bajada}>{item.bajada}</p>}
             <div style={styles.metaRow}>
               {item.categoria && <span style={styles.tag}>{item.categoria}</span>}
-              {/* Badge PDF si el informe tiene PDF adjunto */}
               {item.pdf_url && (
                 <a
                   href={item.pdf_url}
@@ -104,53 +102,53 @@ export default function TimelineContenidos({ items, onVerArticulo }) {
   const grupos = useMemo(() => agruparPorAnio(itemsFiltrados), [itemsFiltrados]);
 
   return (
-    <div style={styles.page}>
-      <div style={styles.pageHeader}>
-        <p style={styles.eyebrow}>Synergia Consultores</p>
-        {/* Renombrado de "Publicaciones" a "Informes" */}
-        <h2 style={styles.pageTitle}>Informes</h2>
+    <div>
+      {/* Encabezado idéntico al de Monitor */}
+      <div className="monitor-header">
+        <div className="monitor-header-inner">
+          <h2 className="monitor-title">Informes</h2>
+        </div>
       </div>
 
-      <div style={styles.filtroRow} role="group" aria-label="Filtrar por categoría">
-        {FILTROS.map((f) => (
-          <button key={f.id} style={{
-            ...styles.filtroPill,
-            background: filtroActivo === f.id ? "#e6322e" : "transparent",
-            color: filtroActivo === f.id ? "#fff" : "#444",
-            borderColor: filtroActivo === f.id ? "#e6322e" : "rgba(0,0,0,0.14)",
-          }} onClick={() => setFiltroActivo(f.id)}>
-            {f.label}
-          </button>
+      <div style={styles.page}>
+        <div style={styles.filtroRow} role="group" aria-label="Filtrar por categoría">
+          {FILTROS.map((f) => (
+            <button key={f.id} style={{
+              ...styles.filtroPill,
+              background: filtroActivo === f.id ? "#e6322e" : "transparent",
+              color: filtroActivo === f.id ? "#fff" : "#444",
+              borderColor: filtroActivo === f.id ? "#e6322e" : "rgba(0,0,0,0.14)",
+            }} onClick={() => setFiltroActivo(f.id)}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+
+        {itemsFiltrados.length === 0 && <p style={styles.empty}>No hay publicaciones en esta categoría.</p>}
+
+        {grupos.map(([anio, arts]) => (
+          <div key={anio}>
+            <div style={styles.yearMarker}>{anio}</div>
+            <div style={styles.timeline}>
+              <div style={styles.timelineLine} aria-hidden="true" />
+              {arts.map((item, idx) => (
+                <TlCard
+                  key={item.id}
+                  item={item}
+                  isFirst={idx === 0 && anio === grupos[0]?.[0]}
+                  onVerArticulo={onVerArticulo}
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
-
-      {itemsFiltrados.length === 0 && <p style={styles.empty}>No hay publicaciones en esta categoría.</p>}
-
-      {grupos.map(([anio, arts]) => (
-        <div key={anio}>
-          <div style={styles.yearMarker}>{anio}</div>
-          <div style={styles.timeline}>
-            <div style={styles.timelineLine} aria-hidden="true" />
-            {arts.map((item, idx) => (
-              <TlCard
-                key={item.id}
-                item={item}
-                isFirst={idx === 0 && anio === grupos[0]?.[0]}
-                onVerArticulo={onVerArticulo}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
 
 const styles = {
   page: { maxWidth: "800px", margin: "0 auto", padding: "2rem 2rem 4rem" },
-  pageHeader: { borderBottom: "1px solid rgba(0,0,0,0.09)", paddingBottom: "1.25rem", marginBottom: "1.75rem" },
-  eyebrow: { fontSize: "11px", letterSpacing: "0.14em", textTransform: "uppercase", color: "#767676", marginBottom: "0.4rem" },
-  pageTitle: { fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em", color: "#111", lineHeight: 1.1 },
   filtroRow: { display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "2rem" },
   filtroPill: { fontSize: "12px", fontWeight: 500, padding: "5px 14px", borderRadius: "99px", border: "1px solid rgba(0,0,0,0.14)", cursor: "pointer", transition: "background 0.15s, color 0.15s", fontFamily: "inherit", lineHeight: 1.4 },
   yearMarker: { fontSize: "11px", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", color: "#767676", paddingBottom: "0.75rem", marginBottom: "1.25rem", borderBottom: "0.5px solid rgba(0,0,0,0.09)", marginLeft: "28px" },
