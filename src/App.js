@@ -1290,6 +1290,32 @@ export default function App() {
   useFooterReveal();
   useEyebrowReveal();
 
+  // ── FORZAR REVEAL AL NAVEGAR ──────────────────────────────────────
+  // El hook useScrollReveal solo observa elementos presentes al montar App.
+  // Al navegar entre páginas, los nuevos elementos no reciben la clase --visible.
+  // Este efecto las aplica manualmente cada vez que cambia la página.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const pairs = [
+        [".reveal-up",    "reveal-up--visible"],
+        [".reveal-down",  "reveal-down--visible"],
+        [".reveal-left",  "reveal-left--visible"],
+        [".reveal-right", "reveal-right--visible"],
+        [".reveal-scale", "reveal-scale--visible"],
+      ];
+      pairs.forEach(([sel, cls]) => {
+        document.querySelectorAll(`${sel}:not(.${cls})`).forEach(el =>
+          el.classList.add(cls)
+        );
+      });
+      // Glosario con stagger
+      document.querySelectorAll(".glosario-item:not(.glosario-item--visible)").forEach((el, i) => {
+        setTimeout(() => el.classList.add("glosario-item--visible"), i * 40);
+      });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [pagina]);
+
   function navegarA(pag, seccion) {
     setPagina(pag);
     if (seccion) setSeccionMonitor(seccion);
@@ -1392,9 +1418,6 @@ export default function App() {
       {!esAdmin && (
         <footer className="footer">
           <div className="footer-inner">
-            <div className="footer-brand">
-              <img src="/logo.png" alt="Synergia Consultores" className="footer-logo" />
-            </div>
             <a href="mailto:synergiaconsult76@gmail.com" className="footer-mail">
               synergiaconsult76@gmail.com
             </a>
