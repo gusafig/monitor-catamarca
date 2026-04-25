@@ -1397,7 +1397,6 @@ a { text-decoration: none; }
 /* ── MONITOR HEADER ──────────────────────────────────── */
 
 .monitor-header {
-  opacity: 0;
   animation: fadeDown 0.5s cubic-bezier(0.22,1,0.36,1) 0.05s both;
 }
 /* Una vez montado el componente React, agregar clase .monitor-header--mounted
