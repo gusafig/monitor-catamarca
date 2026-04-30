@@ -117,19 +117,17 @@ function formatFechaLarga(fechaStr) {
 function BcraKpiCard({ variable, activa, onClick }) {
   const { data, loading } = useBcraMonetaria(variable.id, 400);
   const cardRef = useRef(null);
+  const [visible, setVisible] = useState(false);
 
   // Animar la card cuando el dato ya cargó y la card está en el viewport
   useEffect(() => {
-    if (loading || !cardRef.current) return;
+    if (loading || !cardRef.current || visible) return;
     const el = cardRef.current;
-
-    // Si ya es visible, no hacer nada
-    if (el.classList.contains("bcra-kpi-card--visible")) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add("bcra-kpi-card--visible");
+          setVisible(true);
           observer.unobserve(el);
         }
       },
@@ -137,7 +135,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loading]);
+  }, [loading, visible]);
 
   const ultimo      = bcraUltimo(data);
   const ultimaFecha = bcraUltimaFecha(data);
@@ -154,7 +152,7 @@ function BcraKpiCard({ variable, activa, onClick }) {
   return (
     <button
       ref={cardRef}
-      className={"bcra-kpi-card" + (activa ? " bcra-kpi-card--activa" : "")}
+      className={"bcra-kpi-card" + (visible ? " bcra-kpi-card--visible" : "") + (activa ? " bcra-kpi-card--activa" : "")}
       style={{ "--bcra-color": variable.color }}
       onClick={onClick}
       title={variable.descripcion}
