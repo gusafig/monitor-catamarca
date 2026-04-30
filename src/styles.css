@@ -180,6 +180,31 @@ a { text-decoration: none; }
   overflow: hidden;
 }
 
+/* ── ORBE DE LUZ FLOTANTE ────────────────────────────────────── */
+.inicio-hero-orb {
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 40%,
+    rgba(54,174,172,0.18) 0%,
+    rgba(54,174,172,0.07) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1);   opacity: 0.85; }
+  30%       { transform: translate(-18px, 22px) scale(1.04); opacity: 1; }
+  60%       { transform: translate(12px, -14px) scale(0.97); opacity: 0.9; }
+}
+
 /* ── PULSO SUAVE EN NÚMEROS STAT ─────────────────────────────── */
 .inicio-stat-num {
   animation: statPulse 4s ease-in-out infinite;
@@ -194,153 +219,29 @@ a { text-decoration: none; }
   50%       { opacity: 0.7; }
 }
 
-/* ── ANILLOS CONCÉNTRICOS ANIMADOS ───────────────────────────── */
-.hero-rings {
-  position: absolute;
-  top: 50%;
-  right: -80px;
-  transform: translateY(-52%);
-  width: 500px;
-  height: 500px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Fade lateral: los anillos se disuelven hacia el texto */
-.hero-rings::before {
+/* MEJORA #2: Anillo exterior teal */
+.inicio-hero-inner::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: -80px;
+  right: -100px;
+  width: 380px;
+  height: 380px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at center,
-    transparent 28%,
-    rgba(21,96,122,0.10) 60%,
-    rgba(21,96,122,0.60) 100%
-  );
+  border: 1px solid rgba(54,174,172,0.14);
   pointer-events: none;
-  z-index: 1;
 }
 
-.hero-ring {
+/* MEJORA #2: Anillo interior teal — agregar <div class="inicio-hero-deco" aria-hidden="true"> en JSX */
+.inicio-hero-deco {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 30px;
+  right: 60px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  border-style: solid;
-  transform-origin: center center;
-}
-
-/* Anillo 1 — exterior, muy sutil, gira lento sentido horario */
-.hero-ring--1 {
-  width: 480px; height: 480px;
-  margin-top: -240px; margin-left: -240px;
-  border-width: 1px;
-  border-color: rgba(54,174,172,0.13);
-  animation: ringCW 32s linear infinite;
-}
-
-/* Anillo 2 — arco visible arriba/derecha, gira antihorario */
-.hero-ring--2 {
-  width: 360px; height: 360px;
-  margin-top: -180px; margin-left: -180px;
-  border-width: 1px;
-  border-color: transparent;
-  border-top-color: rgba(54,174,172,0.50);
-  border-right-color: rgba(54,174,172,0.22);
-  animation: ringCCW 20s linear infinite;
-}
-
-/* Anillo 3 — arco teal+blanco, gira horario medio */
-.hero-ring--3 {
-  width: 248px; height: 248px;
-  margin-top: -124px; margin-left: -124px;
-  border-width: 1px;
-  border-color: transparent;
-  border-top-color: rgba(255,255,255,0.22);
-  border-left-color: rgba(54,174,172,0.35);
-  animation: ringCW 14s linear infinite;
-}
-
-/* Anillo 4 — interior, arco rojo abajo, gira antihorario rápido */
-.hero-ring--4 {
-  width: 140px; height: 140px;
-  margin-top: -70px; margin-left: -70px;
-  border-width: 1px;
-  border-color: transparent;
-  border-bottom-color: rgba(230,50,46,0.55);
-  border-left-color: rgba(230,50,46,0.18);
-  animation: ringCCW 9s linear infinite;
-}
-
-/* Núcleo — punto luminoso con pulso */
-.hero-ring-core {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 10px; height: 10px;
-  margin-top: -5px; margin-left: -5px;
-  border-radius: 50%;
-  background: rgba(54,174,172,0.85);
-  box-shadow: 0 0 14px 5px rgba(54,174,172,0.35);
-  animation: corePulse 3.2s ease-in-out infinite;
-  z-index: 2;
-}
-
-/* Puntos orbitales */
-.hero-ring-dot {
-  position: absolute;
-  top: 50%; left: 50%;
-  border-radius: 50%;
-  z-index: 2;
-}
-
-/* Punto A — teal, orbita en anillo 2 */
-.hero-ring-dot--a {
-  width: 6px; height: 6px;
-  margin-top: -3px; margin-left: -3px;
-  background: rgba(54,174,172,0.95);
-  box-shadow: 0 0 8px 3px rgba(54,174,172,0.45);
-  animation: dotOrbit 20s linear infinite;
-  --r: 180px;
-  --start: 20deg;
-}
-
-/* Punto B — blanco, orbita en anillo 1, dirección inversa */
-.hero-ring-dot--b {
-  width: 4px; height: 4px;
-  margin-top: -2px; margin-left: -2px;
-  background: rgba(255,255,255,0.65);
-  box-shadow: 0 0 5px 2px rgba(255,255,255,0.25);
-  animation: dotOrbit 32s linear infinite reverse;
-  --r: 240px;
-  --start: 150deg;
-}
-
-/* Punto C — rojo acento, orbita en anillo 3 */
-.hero-ring-dot--c {
-  width: 5px; height: 5px;
-  margin-top: -2.5px; margin-left: -2.5px;
-  background: rgba(230,50,46,0.80);
-  box-shadow: 0 0 6px 2px rgba(230,50,46,0.30);
-  animation: dotOrbit 14s linear infinite;
-  --r: 124px;
-  --start: 220deg;
-}
-
-/* ── KEYFRAMES ────────────────────────────────────────────────── */
-@keyframes ringCW  { to { transform: rotate(360deg);  } }
-@keyframes ringCCW { to { transform: rotate(-360deg); } }
-
-@keyframes corePulse {
-  0%, 100% { transform: scale(1);   opacity: 0.75;
-             box-shadow: 0 0 14px 5px rgba(54,174,172,0.35); }
-  50%       { transform: scale(1.6); opacity: 1;
-             box-shadow: 0 0 22px 8px rgba(54,174,172,0.55); }
-}
-
-@keyframes dotOrbit {
-  from { transform: rotate(var(--start))           translateX(var(--r)); }
-  to   { transform: rotate(calc(var(--start) + 360deg)) translateX(var(--r)); }
+  border: 1px solid rgba(54,174,172,0.08);
+  pointer-events: none;
 }
 
 .inicio-eyebrow {
@@ -1691,12 +1592,11 @@ a { text-decoration: none; }
   .inicio-cta-row,
   .inicio-stats,
   .inicio-stat,
-  .hero-ring,
-  .hero-ring-core,
-  .hero-ring-dot,
+  .inicio-hero-inner::after,
+  .inicio-hero-orb,
   .inicio-stat-num {
     animation: none !important;
-    opacity: 0.45 !important;
+    opacity: 1 !important;
     transform: none !important;
   }
 
