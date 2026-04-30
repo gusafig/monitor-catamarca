@@ -450,17 +450,10 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
         <div className="inicio-hero-inner">
           {/* Canvas de series de tiempo animadas */}
           <HeroCanvas />
-          {/* Anillos concéntricos animados */}
-          <div className="hero-rings" aria-hidden="true">
-            <div className="hero-ring hero-ring--1" />
-            <div className="hero-ring hero-ring--2" />
-            <div className="hero-ring hero-ring--3" />
-            <div className="hero-ring hero-ring--4" />
-            <div className="hero-ring-core" />
-            <div className="hero-ring-dot hero-ring-dot--a" />
-            <div className="hero-ring-dot hero-ring-dot--b" />
-            <div className="hero-ring-dot hero-ring-dot--c" />
-          </div>
+          {/* Orbe de luz flotante */}
+          <div className="inicio-hero-orb" aria-hidden="true" />
+          {/* Anillo decorativo interior */}
+          <div className="inicio-hero-deco" aria-hidden="true" />
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
           <h1 className="inicio-headline">
             Catamarca<br />
