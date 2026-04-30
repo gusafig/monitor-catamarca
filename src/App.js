@@ -377,8 +377,51 @@ function HeroCanvas() {
 
 // ── INICIO ───────────────────────────────────────────────────────
 function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
+  const orbRef = React.useRef(null);
 
-  // Cuando items llega de Supabase, activar las animaciones de esa sección
+  // Parallax suave del orbe siguiendo el mouse
+  useEffect(() => {
+    const noMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (noMotion) return;
+
+    const hero = document.querySelector(".inicio-hero");
+    if (!hero) return;
+
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    let raf;
+
+    function onMouseMove(e) {
+      const rect = hero.getBoundingClientRect();
+      // Posición normalizada del cursor dentro del hero: -1 a 1
+      const nx = (e.clientX - rect.left)  / rect.width  - 0.5;
+      const ny = (e.clientY - rect.top)   / rect.height - 0.5;
+      // Máximo desplazamiento: 18px
+      targetX = nx * 18;
+      targetY = ny * 18;
+    }
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function animate() {
+      // Interpolación suave (easing)
+      currentX = lerp(currentX, targetX, 0.06);
+      currentY = lerp(currentY, targetY, 0.06);
+      if (orbRef.current) {
+        orbRef.current.style.transform =
+          `translate(${currentX}px, ${currentY}px)`;
+      }
+      raf = requestAnimationFrame(animate);
+    }
+
+    hero.addEventListener("mousemove", onMouseMove);
+    animate();
+
+    return () => {
+      hero.removeEventListener("mousemove", onMouseMove);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
   useEffect(() => {
     if (!items || items.length === 0) return;
 
@@ -450,8 +493,8 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
         <div className="inicio-hero-inner">
           {/* Canvas de series de tiempo animadas */}
           <HeroCanvas />
-          {/* Orbe de luz flotante */}
-          <div className="inicio-hero-orb" aria-hidden="true" />
+          {/* Orbe de luz flotante — parallax con mouse */}
+          <div ref={orbRef} className="inicio-hero-orb" aria-hidden="true" />
           {/* Anillo decorativo interior */}
           <div className="inicio-hero-deco" aria-hidden="true" />
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
