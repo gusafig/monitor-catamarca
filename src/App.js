@@ -270,158 +270,12 @@ function ContactForm() {
   );
 }
 
-// ── HERO CANVAS: líneas de series de tiempo animadas ─────────────
-function HeroCanvas() {
-  const canvasRef = React.useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    function resize() {
-      canvas.width  = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    }
-    resize();
-    window.addEventListener("resize", resize);
-
-    // Generar varias series con forma de datos económicos (tendencia + ruido)
-    function makeSeries(seed, trend, amplitude, points) {
-      const arr = [];
-      let v = 0.5 + (seed % 3) * 0.1;
-      for (let i = 0; i < points; i++) {
-        v += (Math.sin(i * 0.18 + seed) * 0.012) + (trend * 0.003);
-        v += (Math.random() - 0.5) * amplitude;
-        v = Math.max(0.08, Math.min(0.92, v));
-        arr.push(v);
-      }
-      return arr;
-    }
-
-    const SERIES = [
-      { data: makeSeries(1,  1,  0.04, 90), color: "rgba(54,174,172,0.55)", width: 1.5, speed: 0.18, offset: 0   },
-      { data: makeSeries(4, -1,  0.03, 90), color: "rgba(230,50,46,0.35)",  width: 1.2, speed: 0.13, offset: 0.3 },
-      { data: makeSeries(7,  0.5,0.05, 90), color: "rgba(255,255,255,0.18)",width: 1.0, speed: 0.10, offset: 0.6 },
-      { data: makeSeries(2,  1.5,0.02, 90), color: "rgba(54,174,172,0.22)", width: 0.8, speed: 0.22, offset: 0.9 },
-    ];
-
-    let frame = 0;
-    let raf;
-
-    function draw() {
-      const W = canvas.width;
-      const H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
-
-      SERIES.forEach((s) => {
-        // Desplazar los datos: mostramos una ventana deslizante
-        const shift = ((frame * s.speed + s.offset * 60) % s.data.length);
-        const visible = 60; // puntos visibles en pantalla
-
-        ctx.beginPath();
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth   = s.width;
-        ctx.lineJoin    = "round";
-
-        for (let x = 0; x <= W; x += 4) {
-          const t = (x / W) * visible;
-          const idx = Math.floor((t + shift) % s.data.length);
-          const idx2 = (idx + 1) % s.data.length;
-          const frac = t - Math.floor(t);
-          const y = (s.data[idx] * (1 - frac) + s.data[idx2] * frac);
-          const screenY = H * 0.1 + y * H * 0.8;
-          x === 0 ? ctx.moveTo(x, screenY) : ctx.lineTo(x, screenY);
-        }
-        ctx.stroke();
-
-        // Fade-in con gradiente lateral
-        const fade = ctx.createLinearGradient(0, 0, W, 0);
-        fade.addColorStop(0,    "rgba(21,96,122,1)");
-        fade.addColorStop(0.08, "rgba(21,96,122,0)");
-        fade.addColorStop(0.92, "rgba(21,96,122,0)");
-        fade.addColorStop(1,    "rgba(21,96,122,1)");
-        ctx.fillStyle = fade;
-        ctx.fillRect(0, 0, W, H);
-      });
-
-      frame++;
-      raf = requestAnimationFrame(draw);
-    }
-
-    // Respetar prefers-reduced-motion
-    const noMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!noMotion) draw();
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-        opacity: 0.7,
-      }}
-    />
-  );
-}
+// ── HERO COLOR BLOCK: bloques deslizantes en loop ─────────────────
+// Los colores del sitio: verde (#1D9E75), azul (#15607a), rojo (#e6322e)
+// Cada color entra desde la derecha como un bloque, se mantiene, y da paso al siguiente.
 
 // ── INICIO ───────────────────────────────────────────────────────
 function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
-  const orbRef = React.useRef(null);
-
-  // Parallax suave del orbe siguiendo el mouse
-  useEffect(() => {
-    const noMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (noMotion) return;
-
-    const hero = document.querySelector(".inicio-hero");
-    if (!hero) return;
-
-    let targetX = 0, targetY = 0;
-    let currentX = 0, currentY = 0;
-    let raf;
-
-    function onMouseMove(e) {
-      const rect = hero.getBoundingClientRect();
-      // Posición normalizada del cursor dentro del hero: -1 a 1
-      const nx = (e.clientX - rect.left)  / rect.width  - 0.5;
-      const ny = (e.clientY - rect.top)   / rect.height - 0.5;
-      // Máximo desplazamiento: 18px
-      targetX = nx * 18;
-      targetY = ny * 18;
-    }
-
-    function lerp(a, b, t) { return a + (b - a) * t; }
-
-    function animate() {
-      // Interpolación suave (easing)
-      currentX = lerp(currentX, targetX, 0.06);
-      currentY = lerp(currentY, targetY, 0.06);
-      if (orbRef.current) {
-        orbRef.current.style.transform =
-          `translate(${currentX}px, ${currentY}px)`;
-      }
-      raf = requestAnimationFrame(animate);
-    }
-
-    hero.addEventListener("mousemove", onMouseMove);
-    animate();
-
-    return () => {
-      hero.removeEventListener("mousemove", onMouseMove);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
   useEffect(() => {
     if (!items || items.length === 0) return;
 
@@ -490,13 +344,11 @@ function Inicio({ onNavigate, ultimaActualizacion, items, onVerArticulo }) {
 
       {/* ── HERO ────────────────────────────────────────────────── */}
       <div className="inicio-hero">
+        {/* Bloques de color deslizantes en loop */}
+        <div className="hero-block hero-block--verde"  aria-hidden="true" />
+        <div className="hero-block hero-block--azul"   aria-hidden="true" />
+        <div className="hero-block hero-block--rojo"   aria-hidden="true" />
         <div className="inicio-hero-inner">
-          {/* Canvas de series de tiempo animadas */}
-          <HeroCanvas />
-          {/* Orbe de luz flotante — parallax con mouse */}
-          <div ref={orbRef} className="inicio-hero-orb" aria-hidden="true" />
-          {/* Anillo decorativo interior */}
-          <div className="inicio-hero-deco" aria-hidden="true" />
           <p className="inicio-eyebrow">Monitor de Indicadores Provinciales</p>
           <h1 className="inicio-headline">
             Catamarca<br />
