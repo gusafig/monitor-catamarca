@@ -166,97 +166,121 @@ a { text-decoration: none; }
 ══════════════════════════════════════════════════════ */
 .inicio-page { }
 
+/* ── COLORES DEL HERO ─────────────────────────────────────────── */
+/* verde=#1D9E75  azul=#15607a  rojo=#e6322e                       */
+/* Cada ciclo: verde visible → azul entra desde derecha → rojo    */
+/* Duración total: 9s (3s por color). El bloque de color nuevo     */
+/* se desliza desde translateX(100%) hasta 0, tapando el anterior. */
+
 .inicio-hero {
-  background: #15607a;
+  position: relative;
+  overflow: hidden;
+  background: #1D9E75; /* color base: verde */
   border-bottom: none;
-  animation: heroBreathe 12s ease-in-out infinite;
 }
 
-@keyframes heroBreathe {
-  0%, 100% { background-color: #15607a; }
-  50%       { background-color: #0f4d63; }
+/* Bloque verde: es el fondo base, siempre visible detrás */
+/* Bloque azul: entra en t=3s, sale en t=6s              */
+/* Bloque rojo: entra en t=6s, sale en t=9s (=t=0)      */
+
+.hero-block {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translateX(100%);  /* fuera de pantalla por defecto */
 }
 
-/* MEJORA #2: posición relativa + overflow para anillos decorativos */
+/* ── Verde: es el fondo base, siempre visible. No necesita slide. */
+.hero-block--verde {
+  background: #1D9E75;
+  animation: heroSlide-verde 9s linear infinite;
+  z-index: 1;
+}
+
+/* ── Azul: entra en t=3s, cubre todo, sale en t=6s */
+.hero-block--azul {
+  background: #15607a;
+  animation: heroSlide-azul 9s linear infinite;
+  z-index: 2;
+}
+
+/* ── Rojo: entra en t=6s, cubre todo, sale en t=9s */
+.hero-block--rojo {
+  background: #e6322e;
+  animation: heroSlide-rojo 9s linear infinite;
+  z-index: 3;
+}
+
+/* Verde: parte visible (0→33%), entra en slide rápido al inicio del loop */
+@keyframes heroSlide-verde {
+  0%        { transform: translateX(0%);    } /* visible */
+  29%       { transform: translateX(0%);    } /* se mantiene */
+  33.33%    { transform: translateX(0%);    } /* azul ya llegó, verde queda atrás */
+  99.9%     { transform: translateX(0%);    }
+  100%      { transform: translateX(0%);    }
+}
+
+/* Azul: entra desde derecha en t=33%, se mantiene hasta t=66% */
+@keyframes heroSlide-azul {
+  0%        { transform: translateX(100%);  } /* oculto */
+  29%       { transform: translateX(100%);  } /* espera */
+  33.33%    { transform: translateX(0%);    } /* entra instantáneo-rápido */
+  62%       { transform: translateX(0%);    } /* se mantiene */
+  66.66%    { transform: translateX(0%);    } /* rojo ya llegó */
+  99.9%     { transform: translateX(0%);    }
+  100%      { transform: translateX(100%);  } /* reset */
+}
+
+/* Rojo: entra desde derecha en t=66%, se mantiene hasta t=99% */
+@keyframes heroSlide-rojo {
+  0%        { transform: translateX(100%);  } /* oculto */
+  62%       { transform: translateX(100%);  } /* espera */
+  66.66%    { transform: translateX(0%);    } /* entra */
+  95%       { transform: translateX(0%);    } /* se mantiene */
+  99.9%     { transform: translateX(0%);    }
+  100%      { transform: translateX(100%);  } /* reset para nuevo ciclo */
+}
+
+/* El slide de entrada es rápido (tipo "bloque que empuja") */
+/* Usamos steps o una curva muy brusca con cubic-bezier */
+.hero-block--azul { animation-timing-function: linear; }
+.hero-block--rojo { animation-timing-function: linear; }
+
+/* Transición de entrada del bloque: rápida pero suave (0.35s) */
+/* Se logra con un keyframe intermediario justo antes y después */
+@keyframes heroSlide-azul {
+  0%      { transform: translateX(100%); }
+  29%     { transform: translateX(100%); }
+  29.01%  { transform: translateX(100%); }
+  33.33%  { transform: translateX(0%);   }
+  62%     { transform: translateX(0%);   }
+  99.9%   { transform: translateX(0%);   }
+  100%    { transform: translateX(100%); }
+}
+
+@keyframes heroSlide-rojo {
+  0%      { transform: translateX(100%); }
+  62%     { transform: translateX(100%); }
+  62.01%  { transform: translateX(100%); }
+  66.66%  { transform: translateX(0%);   }
+  95%     { transform: translateX(0%);   }
+  99.9%   { transform: translateX(0%);   }
+  100%    { transform: translateX(100%); }
+}
+
+/* ── El contenido del hero va encima de todos los bloques ──────── */
 .inicio-hero-inner {
+  position: relative;
+  z-index: 10;
   max-width: 1200px;
   margin: 0 auto;
   padding: 6rem 2rem 4.5rem;
-  position: relative;
-  overflow: hidden;
 }
 
-/* ── ORBE DE LUZ FLOTANTE ────────────────────────────────────── */
-/* El div es movido por JS (parallax). El ::after flota de forma autónoma. */
-.inicio-hero-orb {
-  position: absolute;
-  top: -120px;
-  right: -80px;
-  width: 520px;
-  height: 520px;
-  pointer-events: none;
-  will-change: transform;
-}
-
-.inicio-hero-orb::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle at 40% 40%,
-    rgba(54,174,172,0.18) 0%,
-    rgba(54,174,172,0.07) 40%,
-    transparent 70%
-  );
-  animation: orbFloat 8s ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1);    opacity: 0.85; }
-  30%       { transform: translate(-18px, 22px) scale(1.04); opacity: 1;    }
-  60%       { transform: translate(12px, -14px) scale(0.97); opacity: 0.9;  }
-}
-
-/* ── PULSO SUAVE EN NÚMEROS STAT ─────────────────────────────── */
-.inicio-stat-num {
-  animation: statPulse 4s ease-in-out infinite;
-  will-change: opacity;
-}
-.inicio-stat:nth-child(1) .inicio-stat-num { animation-delay: 0s; }
-.inicio-stat:nth-child(3) .inicio-stat-num { animation-delay: 1.3s; }
-.inicio-stat:nth-child(5) .inicio-stat-num { animation-delay: 2.6s; }
-
-@keyframes statPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.7; }
-}
-
-/* MEJORA #2: Anillo exterior teal */
-.inicio-hero-inner::after {
-  content: "";
-  position: absolute;
-  top: -80px;
-  right: -100px;
-  width: 380px;
-  height: 380px;
-  border-radius: 50%;
-  border: 1px solid rgba(54,174,172,0.14);
-  pointer-events: none;
-}
-
-/* MEJORA #2: Anillo interior teal — agregar <div class="inicio-hero-deco" aria-hidden="true"> en JSX */
-.inicio-hero-deco {
-  position: absolute;
-  top: 30px;
-  right: 60px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  border: 1px solid rgba(54,174,172,0.08);
-  pointer-events: none;
-}
+/* ── Adaptar colores de texto y elementos del hero al fondo cambiante */
+/* El texto blanco funciona con los tres colores */
 
 .inicio-eyebrow {
   font-size: 11px;
@@ -277,9 +301,9 @@ a { text-decoration: none; }
   color: #ffffff;
   margin-bottom: 1.5rem;
 }
-/* MEJORA #1: Acento en itálica para mayor elegancia */
+/* Acento en blanco semitransparente para funcionar sobre los tres fondos */
 .inicio-headline-accent {
-  color: var(--color-teal);
+  color: rgba(255,255,255,0.75);
   font-style: italic;
 }
 
@@ -304,14 +328,14 @@ a { text-decoration: none; }
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: #ffffff;
-  background: var(--color-primary);
+  color: #111111;
+  background: #ffffff;
   border: none;
   padding: 0.8rem 1.8rem;
   border-radius: var(--radius-sm);
-  transition: background 0.15s, transform 0.12s;
+  transition: background 0.15s, transform 0.12s, color 0.15s;
 }
-.inicio-cta:hover { background: #c9201c; transform: translateY(-1px); }
+.inicio-cta:hover { background: rgba(255,255,255,0.88); transform: translateY(-1px); }
 .inicio-cta-secondary {
   display: inline-flex;
   align-items: center;
