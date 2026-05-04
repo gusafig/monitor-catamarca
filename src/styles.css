@@ -167,21 +167,16 @@ a { text-decoration: none; }
 .inicio-page { }
 
 /* ── COLORES DEL HERO ─────────────────────────────────────────── */
-/* verde=#1D9E75  azul=#15607a  rojo=#e6322e                       */
-/* Cada ciclo: verde visible → azul entra desde derecha → rojo    */
-/* Duración total: 9s (3s por color). El bloque de color nuevo     */
-/* se desliza desde translateX(100%) hasta 0, tapando el anterior. */
+/* verde-agua=#15607a  azul=#1a3a5c  rojo=#e6322e                  */
+/* Ciclo de 18s (6s por color). Cada bloque entra desde la derecha */
+/* con una transición suave de ~1s, se mantiene, y da paso al sig. */
 
 .inicio-hero {
   position: relative;
   overflow: hidden;
-  background: #1D9E75; /* color base: verde */
+  background: #15607a; /* color base: verde agua original */
   border-bottom: none;
 }
-
-/* Bloque verde: es el fondo base, siempre visible detrás */
-/* Bloque azul: entra en t=3s, sale en t=6s              */
-/* Bloque rojo: entra en t=6s, sale en t=9s (=t=0)      */
 
 .hero-block {
   position: absolute;
@@ -189,84 +184,46 @@ a { text-decoration: none; }
   width: 100%;
   height: 100%;
   will-change: transform;
-  transform: translateX(100%);  /* fuera de pantalla por defecto */
 }
 
-/* ── Verde: es el fondo base, siempre visible. No necesita slide. */
+/* Verde agua: fondo base, siempre detrás */
 .hero-block--verde {
-  background: #1D9E75;
-  animation: heroSlide-verde 9s linear infinite;
-  z-index: 1;
-}
-
-/* ── Azul: entra en t=3s, cubre todo, sale en t=6s */
-.hero-block--azul {
   background: #15607a;
-  animation: heroSlide-azul 9s linear infinite;
-  z-index: 2;
+  z-index: 1;
+  transform: translateX(0%);
 }
 
-/* ── Rojo: entra en t=6s, cubre todo, sale en t=9s */
+/* Azul: entra en t=6s, ocupa hasta t=12s */
+.hero-block--azul {
+  background: #1a3a5c;
+  z-index: 2;
+  animation: heroSlide-azul 18s cubic-bezier(0.77,0,0.18,1) infinite;
+}
+
+/* Rojo: entra en t=12s, ocupa hasta t=18s */
 .hero-block--rojo {
   background: #e6322e;
-  animation: heroSlide-rojo 9s linear infinite;
   z-index: 3;
+  animation: heroSlide-rojo 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
-/* Verde: parte visible (0→33%), entra en slide rápido al inicio del loop */
-@keyframes heroSlide-verde {
-  0%        { transform: translateX(0%);    } /* visible */
-  29%       { transform: translateX(0%);    } /* se mantiene */
-  33.33%    { transform: translateX(0%);    } /* azul ya llegó, verde queda atrás */
-  99.9%     { transform: translateX(0%);    }
-  100%      { transform: translateX(0%);    }
-}
-
-/* Azul: entra desde derecha en t=33%, se mantiene hasta t=66% */
-@keyframes heroSlide-azul {
-  0%        { transform: translateX(100%);  } /* oculto */
-  29%       { transform: translateX(100%);  } /* espera */
-  33.33%    { transform: translateX(0%);    } /* entra instantáneo-rápido */
-  62%       { transform: translateX(0%);    } /* se mantiene */
-  66.66%    { transform: translateX(0%);    } /* rojo ya llegó */
-  99.9%     { transform: translateX(0%);    }
-  100%      { transform: translateX(100%);  } /* reset */
-}
-
-/* Rojo: entra desde derecha en t=66%, se mantiene hasta t=99% */
-@keyframes heroSlide-rojo {
-  0%        { transform: translateX(100%);  } /* oculto */
-  62%       { transform: translateX(100%);  } /* espera */
-  66.66%    { transform: translateX(0%);    } /* entra */
-  95%       { transform: translateX(0%);    } /* se mantiene */
-  99.9%     { transform: translateX(0%);    }
-  100%      { transform: translateX(100%);  } /* reset para nuevo ciclo */
-}
-
-/* El slide de entrada es rápido (tipo "bloque que empuja") */
-/* Usamos steps o una curva muy brusca con cubic-bezier */
-.hero-block--azul { animation-timing-function: linear; }
-.hero-block--rojo { animation-timing-function: linear; }
-
-/* Transición de entrada del bloque: rápida pero suave (0.35s) */
-/* Se logra con un keyframe intermediario justo antes y después */
+/* Azul: espera hasta 33.33% (6s), entra rápido, se mantiene, reset al 100% */
 @keyframes heroSlide-azul {
   0%      { transform: translateX(100%); }
-  29%     { transform: translateX(100%); }
-  29.01%  { transform: translateX(100%); }
-  33.33%  { transform: translateX(0%);   }
-  62%     { transform: translateX(0%);   }
-  99.9%   { transform: translateX(0%);   }
+  33%     { transform: translateX(100%); }
+  38%     { transform: translateX(0%);   }
+  65%     { transform: translateX(0%);   }
+  70%     { transform: translateX(0%);   }
+  99%     { transform: translateX(0%);   }
   100%    { transform: translateX(100%); }
 }
 
+/* Rojo: espera hasta 66.66% (12s), entra, se mantiene hasta el final */
 @keyframes heroSlide-rojo {
   0%      { transform: translateX(100%); }
-  62%     { transform: translateX(100%); }
-  62.01%  { transform: translateX(100%); }
-  66.66%  { transform: translateX(0%);   }
-  95%     { transform: translateX(0%);   }
-  99.9%   { transform: translateX(0%);   }
+  65%     { transform: translateX(100%); }
+  71%     { transform: translateX(0%);   }
+  98%     { transform: translateX(0%);   }
   100%    { transform: translateX(100%); }
 }
 
