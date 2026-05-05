@@ -193,9 +193,9 @@ a { text-decoration: none; }
   transform: translateX(0%);
 }
 
-/* Azul: entra en t=6s, ocupa hasta t=12s */
+/* Teal: entra en t=6s, ocupa hasta t=12s */
 .hero-block--azul {
-  background: #1a3a5c;
+  background: #36aeac;
   z-index: 2;
   animation: heroSlide-azul 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
