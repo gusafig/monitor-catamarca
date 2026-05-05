@@ -237,7 +237,53 @@ a { text-decoration: none; }
 }
 
 /* ── Adaptar colores de texto y elementos del hero al fondo cambiante */
-/* El texto blanco funciona con los tres colores */
+/* Durante la fase teal (#36aeac) el texto oscuro mejora el contraste.  */
+/* Sincronizado con heroSlide-azul: entra ~38%, sale ~70% del ciclo 18s */
+
+@keyframes heroText-teal {
+  0%      { color: rgba(255,255,255,0.55); }
+  33%     { color: rgba(255,255,255,0.55); }
+  38%     { color: rgba(17,17,17,0.75);    }
+  65%     { color: rgba(17,17,17,0.75);    }
+  70%     { color: rgba(255,255,255,0.55); }
+  100%    { color: rgba(255,255,255,0.55); }
+}
+
+@keyframes heroHeadline-teal {
+  0%      { color: #ffffff; }
+  33%     { color: #ffffff; }
+  38%     { color: #0d3d3c; }
+  65%     { color: #0d3d3c; }
+  70%     { color: #ffffff; }
+  100%    { color: #ffffff; }
+}
+
+@keyframes heroAccent-teal {
+  0%      { color: rgba(255,255,255,0.75); }
+  33%     { color: rgba(255,255,255,0.75); }
+  38%     { color: rgba(13,61,60,0.85);    }
+  65%     { color: rgba(13,61,60,0.85);    }
+  70%     { color: rgba(255,255,255,0.75); }
+  100%    { color: rgba(255,255,255,0.75); }
+}
+
+@keyframes heroDesc-teal {
+  0%      { color: rgba(255,255,255,0.65); }
+  33%     { color: rgba(255,255,255,0.65); }
+  38%     { color: rgba(17,17,17,0.65);    }
+  65%     { color: rgba(17,17,17,0.65);    }
+  70%     { color: rgba(255,255,255,0.65); }
+  100%    { color: rgba(255,255,255,0.65); }
+}
+
+@keyframes heroLine-teal {
+  0%      { background: var(--color-teal); }
+  33%     { background: var(--color-teal); }
+  38%     { background: #0d3d3c;           }
+  65%     { background: #0d3d3c;           }
+  70%     { background: var(--color-teal); }
+  100%    { background: var(--color-teal); }
+}
 
 .inicio-eyebrow {
   font-size: 11px;
@@ -246,6 +292,7 @@ a { text-decoration: none; }
   color: rgba(255,255,255,0.55);
   margin-bottom: 1.25rem;
   font-weight: 500;
+  animation: heroText-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 /* MEJORA #1: Fuente display en headline */
@@ -257,11 +304,13 @@ a { text-decoration: none; }
   letter-spacing: -0.02em;
   color: #ffffff;
   margin-bottom: 1.5rem;
+  animation: heroHeadline-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 /* Acento en blanco semitransparente para funcionar sobre los tres fondos */
 .inicio-headline-accent {
   color: rgba(255,255,255,0.75);
   font-style: italic;
+  animation: heroAccent-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 .inicio-desc {
@@ -271,6 +320,7 @@ a { text-decoration: none; }
   max-width: 480px;
   margin-bottom: 2rem;
   font-weight: 400;
+  animation: heroDesc-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 .inicio-cta-row {
   display: flex;
@@ -1259,12 +1309,14 @@ a { text-decoration: none; }
 
 /* Eyebrow: desliza desde abajo con fade */
 .inicio-eyebrow {
-  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both;
+  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both,
+             heroText-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 /* Headline: más lento, más peso */
 .inicio-headline {
-  animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.2s both,
+             heroHeadline-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 /* Línea separadora bajo headline — crece desde la izquierda */
@@ -1276,12 +1328,14 @@ a { text-decoration: none; }
   background: var(--color-teal);
   margin-top: 1.25rem;
   transform-origin: left;
-  animation: lineGrow 0.5s cubic-bezier(0.22,1,0.36,1) 0.7s both;
+  animation: lineGrow 0.5s cubic-bezier(0.22,1,0.36,1) 0.7s both,
+             heroLine-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 /* Descripción */
 .inicio-desc {
-  animation: fadeUp 0.65s cubic-bezier(0.22,1,0.36,1) 0.32s both;
+  animation: fadeUp 0.65s cubic-bezier(0.22,1,0.36,1) 0.32s both,
+             heroDesc-teal 18s cubic-bezier(0.77,0,0.18,1) infinite;
 }
 
 /* CTAs */
