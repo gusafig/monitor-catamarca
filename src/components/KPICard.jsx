@@ -1,5 +1,4 @@
-import React from "react";
-import { useScrollReveal } from "../hooks/useScrollReveal";
+import React, { useRef, useState, useEffect } from "react";
 
 // Íconos SVG inline por clave
 const ICONOS = {
@@ -31,7 +30,18 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
   const isUp = deltaNum > 0;
   const isDown = deltaNum < 0;
   const IconoEl = icono && ICONOS[icono] ? ICONOS[icono] : null;
-  const [ref, isVisible] = useScrollReveal();
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.08 });
+    obs.observe(el);
+    const t = setTimeout(() => setIsVisible(true), 1000);
+    return () => { obs.disconnect(); clearTimeout(t); };
+  }, []);
 
   return (
     <div
