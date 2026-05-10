@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   LineChart, Line,
   BarChart, Bar,
@@ -8,7 +8,6 @@ import {
   Tooltip, Legend, ResponsiveContainer,
 } from "recharts";
 import { COLORES } from "../data/config";
-import { useScrollReveal } from "../hooks/useScrollReveal";
 
 const TOOLTIP_STYLE = {
   backgroundColor: "var(--bg-primary)",
@@ -52,7 +51,18 @@ const ANIM = { isAnimationActive: true, animationDuration: 900, animationEasing:
  */
 export function ChartCard({ tipo, data, seccion, nombre, unidad, loading, series }) {
   const colores = COLORES[seccion] || COLORES.economia_real;
-  const [ref, isVisible] = useScrollReveal();
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.08 });
+    obs.observe(el);
+    const t = setTimeout(() => setIsVisible(true), 1000);
+    return () => { obs.disconnect(); clearTimeout(t); };
+  }, []);
 
   const renderChart = () => {
     if (loading) return (
