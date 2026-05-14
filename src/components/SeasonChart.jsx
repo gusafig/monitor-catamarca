@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import {
   LineChart, Line,
   XAxis, YAxis, CartesianGrid,
@@ -43,6 +43,20 @@ const SEASON_COLORS = [
 export function SeasonChart({ nombre, unidad, seccion }) {
   const { data, loading } = useCsvData("aceite_oliva_temporadas.csv");
   const colores = COLORES[seccion] || COLORES.economia_real;
+
+  // Visibilidad: replica el mismo mecanismo que ChartCard
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setIsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.08 });
+    obs.observe(el);
+    const t = setTimeout(() => setIsVisible(true), 1000);
+    return () => { obs.disconnect(); clearTimeout(t); };
+  }, []);
 
   // Detecta las columnas de temporadas (todas excepto la columna de semana/periodo)
   const { xKey, temporadas } = useMemo(() => {
@@ -98,7 +112,7 @@ export function SeasonChart({ nombre, unidad, seccion }) {
   };
 
   return (
-    <div className="chart-card">
+    <div ref={ref} className={`chart-card${isVisible ? " chart-card--visible" : ""}`}>
       <div className="chart-card__header">
         <span className="chart-card__title">{nombre}</span>
       </div>
