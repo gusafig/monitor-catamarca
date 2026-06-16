@@ -3,21 +3,8 @@
   "outputDirectory": "build",
   "framework": "create-react-app",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/ping-supabase",
-      "schedule": "0 9 * * 1,4"
-    }
-"rewrites": [
-  { "source": "/api/(.*)", "destination": "/api/$1" },
-  { "source": "/(.*)", "destination": "/index.html" }
-]
-
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
