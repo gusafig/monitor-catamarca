@@ -17,5 +17,11 @@
       ]
     }
   ],
-  "installCommand": "npm install --legacy-peer-deps"
+  "installCommand": "npm install --legacy-peer-deps",
+  "crons": [
+    {
+      "path": "/api/ping-supabase",
+      "schedule": "0 12 */3 * *"
+    }
+  ]
 }
