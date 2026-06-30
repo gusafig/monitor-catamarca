@@ -19,7 +19,7 @@ export function useCsvData(filename) {
     setLoading(true);
     setError(null);
 
-    fetch(`${process.env.PUBLIC_URL}/data/${filename}`)
+    fetch(`/data/${filename}`)
       .then((res) => {
         if (!res.ok) throw new Error(`No se pudo cargar ${filename}`);
         return res.text();
