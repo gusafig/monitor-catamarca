@@ -120,7 +120,7 @@ function useUltimaActualizacion(items) {
     const archivos = CONFIG.indicadores.map((i) => i.archivo);
     Promise.all(
       archivos.map((archivo) =>
-        fetch(`${process.env.PUBLIC_URL}/data/${archivo}`)
+        fetch(`/data/${archivo}`)
           .then((r) => (r.ok ? r.text() : ""))
           .then((text) => {
             if (!text) return null;
