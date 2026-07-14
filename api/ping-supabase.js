@@ -10,8 +10,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Endpoint oficial de health check de Supabase (siempre disponible, no requiere tablas)
-    const healthRes = await fetch(`${url}/rest/v1/`, {
+    // Consulta REAL contra una tabla existente (contenidos).
+    // Esto SÍ cuenta como "actividad de base de datos" para Supabase,
+    // a diferencia de pegarle solo a /rest/v1/ (raíz) o /auth/v1/health,
+    // que no tocan ninguna tabla y no evitan la pausa por inactividad.
+    const pingRes = await fetch(`${url}/rest/v1/contenidos?select=id&limit=1`, {
       headers: {
         apikey: key,
         Authorization: `Bearer ${key}`,
@@ -19,19 +22,22 @@ export default async function handler(req, res) {
       },
     });
 
-    // Segundo ping al endpoint de autenticación para generar actividad adicional
-    await fetch(`${url}/auth/v1/health`, {
-      headers: {
-        apikey: key,
-      },
-    });
-
     const timestamp = new Date().toISOString();
-    console.log(`[ping-supabase] ${timestamp} - status: ${healthRes.status}`);
+    const bodyText = await pingRes.text();
+    console.log(`[ping-supabase] ${timestamp} - status: ${pingRes.status} - body: ${bodyText.slice(0, 200)}`);
+
+    if (!pingRes.ok) {
+      return res.status(pingRes.status).json({
+        ok: false,
+        status: pingRes.status,
+        error: bodyText.slice(0, 300),
+        timestamp,
+      });
+    }
 
     res.status(200).json({
       ok: true,
-      status: healthRes.status,
+      status: pingRes.status,
       timestamp,
     });
   } catch (err) {
