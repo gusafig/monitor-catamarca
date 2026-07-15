@@ -19,7 +19,7 @@
   "crons": [
     {
       "path": "/api/ping-supabase",
-      "schedule": "0 12 */3 * *"
+      "schedule": "0 12 * * *"
     }
   ]
 }
