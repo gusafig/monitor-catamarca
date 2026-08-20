@@ -43,6 +43,45 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
     return () => { obs.disconnect(); clearTimeout(t); };
   }, []);
 
+  // ── Animación de conteo del valor numérico ──────────────────────
+  // Si "value" trae un número (con separadores de miles, %, $, etc.),
+  // lo anima desde 0 hasta el valor real cuando la tarjeta se vuelve
+  // visible. Si no es numérico, se muestra el texto tal cual.
+  const [displayValue, setDisplayValue] = useState(null);
+  useEffect(() => {
+    if (!isVisible || loading || value == null) return;
+
+    const str = String(value);
+    const match = str.match(/-?\d[\d.,]*\d|\d/); // primer número dentro del string
+    if (!match) { setDisplayValue(str); return; }
+
+    const numStr = match[0];
+    const target = parseFloat(numStr.replace(/\./g, "").replace(",", "."));
+    if (isNaN(target)) { setDisplayValue(str); return; }
+
+    const decimales = (numStr.split(",")[1] || "").length;
+    const prefix = str.slice(0, match.index);
+    const suffix = str.slice(match.index + numStr.length);
+
+    const duracion = 900;
+    const inicio = performance.now();
+
+    let frame;
+    const tick = (now) => {
+      const t = Math.min(1, (now - inicio) / duracion);
+      const eased = 1 - Math.pow(1 - t, 3); // ease-out cúbico
+      const actual = target * eased;
+      const formateado = actual.toLocaleString("es-AR", {
+        minimumFractionDigits: decimales,
+        maximumFractionDigits: decimales,
+      });
+      setDisplayValue(`${prefix}${formateado}${suffix}`);
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [isVisible, loading, value]);
+
   return (
     <div
       ref={ref}
@@ -63,7 +102,7 @@ export function KPICard({ label, value, delta, color = "#1D9E75", loading, toolt
           <div className="kpi-skeleton kpi-skeleton--sm" />
         </>
       ) : (
-        <div className="kpi-value">{value ?? "—"}</div>
+        <div className="kpi-value">{displayValue ?? value ?? "—"}</div>
       )}
 
       {!loading && unidad && (
