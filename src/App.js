@@ -855,6 +855,14 @@ function Articulo({ item, onVolver }) {
           doc.text(src, margin + 4, y + 13);
         }
         y += 24;
+      } else if (bloque.tipo === "audio") {
+        if (y > pageH - 20) { doc.addPage(); y = margin; }
+        y += 4;
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(9);
+        doc.setTextColor(120, 120, 120);
+        doc.text("🔊 Audio disponible en la versión web del artículo.", margin, y + 4);
+        y += 14;
       }
     });
 
@@ -919,6 +927,13 @@ function Articulo({ item, onVolver }) {
               return (
                 <div key={i} className="articulo-viz">
                   <DatawrapperEmbed embed={bloque.contenido} />
+                </div>
+              );
+            }
+            if (bloque.tipo === "audio") {
+              return (
+                <div key={i} className="articulo-audio">
+                  <audio controls src={bloque.contenido} style={{ width: "100%" }} />
                 </div>
               );
             }
@@ -1107,7 +1122,11 @@ function Admin({ items, setItems, onSalir }) {
                 <div key={idx} className="admin-bloque">
                   <div className="admin-bloque-header">
                     <span className="admin-bloque-tipo">
-                      {bloque.tipo === "texto" ? "📝 Bloque de texto" : "📊 Gráfico Datawrapper"}
+                      {bloque.tipo === "texto"
+                        ? "📝 Bloque de texto"
+                        : bloque.tipo === "audio"
+                        ? "🔊 Audio"
+                        : "📊 Gráfico Datawrapper"}
                     </span>
                     <div className="admin-bloque-acciones">
                       <button
@@ -1138,6 +1157,19 @@ function Admin({ items, setItems, onSalir }) {
                       onChange={(e) => actualizarBloque(idx, e.target.value)}
                       style={{ minHeight: "160px" }}
                     />
+                  ) : bloque.tipo === "audio" ? (
+                    <>
+                      <input
+                        className="admin-input"
+                        type="text"
+                        placeholder="URL del audio (ej: /audio/2026-09-12-noticia.mp3 o el link de Supabase Storage)"
+                        value={bloque.contenido}
+                        onChange={(e) => actualizarBloque(idx, e.target.value)}
+                      />
+                      {bloque.contenido && (
+                        <audio controls src={bloque.contenido} style={{ width: "100%", marginTop: "8px" }} />
+                      )}
+                    </>
                   ) : (
                     <textarea
                       className="admin-textarea"
@@ -1158,6 +1190,9 @@ function Admin({ items, setItems, onSalir }) {
               </button>
               <button className="btn-secondary" onClick={() => agregarBloque("embed")}>
                 + Gráfico Datawrapper
+              </button>
+              <button className="btn-secondary" onClick={() => agregarBloque("audio")}>
+                + Audio
               </button>
             </div>
             {/* ── FIN EDITOR DE BLOQUES ─────────────────────── */}
