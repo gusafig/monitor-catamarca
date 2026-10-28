@@ -927,21 +927,24 @@ function Articulo({ item, onVolver }) {
         <div className="articulo-meta">
           <span className="articulo-fecha">{formatFecha(item.fecha)}</span>
           <span className="articulo-lectura">{tiempoLectura(item.texto)}</span>
-          {item.pdf_url ? (
+          {item.pdf_url && (
             <a
               className="articulo-pdf-btn"
               href={urlDescargaPdf(item.pdf_url, item.titulo)}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ textDecoration: "none" }}
+              style={{ textDecoration: "none", marginLeft: "auto" }}
             >
-              ↓ Descargar PDF
+              ↓ Descargar informe (PDF)
             </a>
-          ) : (
-            <button className="articulo-pdf-btn" onClick={() => descargarPDF(item)}>
-              ↓ Descargar PDF
-            </button>
           )}
+          <button
+            className="articulo-pdf-btn"
+            style={item.pdf_url ? { marginLeft: "8px" } : undefined}
+            onClick={() => descargarPDF(item)}
+          >
+            {item.pdf_url ? "↓ Descargar artículo" : "↓ Descargar PDF"}
+          </button>
         </div>
 
         <h1 className="articulo-titulo">{item.titulo}</h1>
