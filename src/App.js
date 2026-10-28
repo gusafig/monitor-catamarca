@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { jsPDF } from "jspdf";
 import { useCsvData, lastValue } from "./hooks/useCsvData";
 import { Section } from "./components/Section";
@@ -12,6 +12,7 @@ import {
   useFooterReveal,
   useEyebrowReveal,
 } from "./hooks/useScrollReveal";
+const PdfViewer = React.lazy(() => import("./components/PdfViewer"));
 import "./styles.css";
 
 // ── SUPABASE ──────────────────────────────────────────────────────
@@ -800,6 +801,7 @@ function normalizarBloques(item) {
 
 // ── VISTA DE ARTÍCULO ────────────────────────────────────────────
 function Articulo({ item, onVolver }) {
+  const [verPdf, setVerPdf] = useState(false);
   if (!item) return null;
 
   const bloques = normalizarBloques(item);
@@ -977,6 +979,19 @@ function Articulo({ item, onVolver }) {
             return null;
           })}
         </div>
+
+        {item.pdf_url && (
+          <div className="articulo-pdf-visor">
+            <button className="articulo-pdf-toggle" onClick={() => setVerPdf((v) => !v)}>
+              {verPdf ? "Ocultar visor de PDF ▲" : "Ver PDF en la página ▼"}
+            </button>
+            {verPdf && (
+              <Suspense fallback={<p className="pdf-msg">Cargando visor…</p>}>
+                <PdfViewer url={item.pdf_url} descargaUrl={urlDescargaPdf(item.pdf_url, item.titulo)} />
+              </Suspense>
+            )}
+          </div>
+        )}
 
         {item.link && (
           <div className="articulo-link-wrap">
