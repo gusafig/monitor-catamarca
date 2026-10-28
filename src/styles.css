@@ -882,7 +882,7 @@ a { text-decoration: none; }
 .articulo-portada { max-width: 480px; margin: 1.5rem auto 0; overflow: hidden; border-radius: var(--radius-lg); }
 .articulo-portada img { width: 100%; height: auto; display: block; max-height: 400px; object-fit: cover; }
 .articulo-inner { max-width: 740px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
-.articulo-meta { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+.articulo-meta { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
 .articulo-fecha { font-size: 12px; color: var(--text-tertiary); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
 .articulo-lectura { font-size: 12px; color: var(--text-tertiary); }
 .articulo-titulo { font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-primary); margin-bottom: 1rem; }
