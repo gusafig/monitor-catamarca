@@ -5,6 +5,13 @@ function formatFecha(fecha) {
   return new Date(fecha + "T12:00:00").toLocaleDateString("es-AR", { year: "numeric", month: "long", day: "numeric" });
 }
 
+function pdfDescarga(item) {
+  const url = item.pdf_url;
+  if (!url || !url.includes("/storage/v1/object/public/")) return url;
+  const nombre = (item.titulo || "informe").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").slice(0, 60) + ".pdf";
+  return `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(nombre)}`;
+}
+
 function formatAnio(fecha) {
   if (!fecha) return "";
   return new Date(fecha + "T12:00:00").getFullYear().toString();
@@ -72,7 +79,7 @@ function TlCard({ item, isFirst, onVerArticulo }) {
               {item.categoria && <span style={styles.tag}>{item.categoria}</span>}
               {item.pdf_url && (
                 <a
-                  href={item.pdf_url}
+                  href={pdfDescarga(item)}
                   target="_blank"
                   rel="noopener noreferrer"
                   style={styles.pdfBadge}
