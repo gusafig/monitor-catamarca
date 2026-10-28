@@ -71,6 +71,31 @@ async function guardarContenido(item) {
   }
 }
 
+// ── PDF ADJUNTO (Supabase Storage, bucket público "pdfs") ─────────
+async function subirPdf(file) {
+  const limpio = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]+/g, "-");
+  const ruta = `${Date.now()}-${limpio}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/pdfs/${ruta}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/pdf",
+      "x-upsert": "false",
+    },
+    body: file,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return `${SUPABASE_URL}/storage/v1/object/public/pdfs/${ruta}`;
+}
+
+function urlDescargaPdf(url, titulo) {
+  if (!url) return "";
+  if (!url.includes("/storage/v1/object/public/")) return url;
+  const nombre = (titulo || "informe").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").slice(0, 60) + ".pdf";
+  return `${url}${url.includes("?") ? "&" : "?"}download=${encodeURIComponent(nombre)}`;
+}
+
 async function eliminarContenido(id) {
   await fetch(`${SUPABASE_URL}/rest/v1/contenidos?id=eq.${id}`, {
     method: "DELETE",
@@ -900,9 +925,21 @@ function Articulo({ item, onVolver }) {
         <div className="articulo-meta">
           <span className="articulo-fecha">{formatFecha(item.fecha)}</span>
           <span className="articulo-lectura">{tiempoLectura(item.texto)}</span>
-          <button className="articulo-pdf-btn" onClick={() => descargarPDF(item)}>
-            ↓ Descargar PDF
-          </button>
+          {item.pdf_url ? (
+            <a
+              className="articulo-pdf-btn"
+              href={urlDescargaPdf(item.pdf_url, item.titulo)}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: "none" }}
+            >
+              ↓ Descargar PDF
+            </a>
+          ) : (
+            <button className="articulo-pdf-btn" onClick={() => descargarPDF(item)}>
+              ↓ Descargar PDF
+            </button>
+          )}
         </div>
 
         <h1 className="articulo-titulo">{item.titulo}</h1>
@@ -962,6 +999,7 @@ function Admin({ items, setItems, onSalir }) {
   const [errorPass, setErrorPass] = useState(false);
   const [vista, setVista] = useState("lista");
   const [form, setForm] = useState(formVacio());
+  const [subiendoPdf, setSubiendoPdf] = useState(false);
 
   function formVacio() {
     return {
@@ -973,6 +1011,7 @@ function Admin({ items, setItems, onSalir }) {
       bloques: [{ tipo: "texto", contenido: "" }],
       imagen: "",
       imagen_articulo: "",
+      pdf_url: "",
       link: "",
       linkLabel: "",
       // campos legacy mantenidos para compatibilidad con artículos existentes
@@ -1009,6 +1048,24 @@ function Admin({ items, setItems, onSalir }) {
       setVista("lista");
     } catch (e) {
       alert("No se pudo guardar el artículo. Revisá la consola del navegador para más detalles.");
+    }
+  }
+
+  async function elegirPdf(e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.type !== "application/pdf") { alert("El archivo debe ser un PDF."); return; }
+    if (file.size > 20 * 1024 * 1024) { alert("El PDF supera los 20 MB."); return; }
+    setSubiendoPdf(true);
+    try {
+      const url = await subirPdf(file);
+      setForm((f) => ({ ...f, pdf_url: url }));
+    } catch (err) {
+      console.error("Error al subir PDF:", err);
+      alert("No se pudo subir el PDF. Revisá que el bucket 'pdfs' y sus políticas estén creados en Supabase.");
+    } finally {
+      setSubiendoPdf(false);
     }
   }
 
@@ -1204,6 +1261,19 @@ function Admin({ items, setItems, onSalir }) {
             <label className="admin-label">URL de imagen de cabecera del artículo</label>
             <p className="admin-hint">Aparece dentro del artículo. Si está vacía, no se muestra ninguna imagen.</p>
             <input className="admin-input" placeholder="https://... (opcional)" value={form.imagen_articulo || ""} onChange={(e) => setForm({ ...form, imagen_articulo: e.target.value })} />
+
+            <label className="admin-label">PDF adjunto (opcional)</label>
+            <p className="admin-hint">Subí un PDF o pegá su URL. Los lectores lo podrán descargar desde el artículo y desde el listado.</p>
+            <input type="file" accept="application/pdf" onChange={elegirPdf} disabled={subiendoPdf} />
+            {subiendoPdf && <p className="admin-hint">Subiendo PDF…</p>}
+            <input className="admin-input" placeholder="https://... (URL del PDF)" value={form.pdf_url || ""} onChange={(e) => setForm({ ...form, pdf_url: e.target.value })} />
+            {form.pdf_url && (
+              <p className="admin-hint">
+                <a href={form.pdf_url} target="_blank" rel="noopener noreferrer">Ver PDF actual</a>
+                {" · "}
+                <button type="button" className="admin-link-volver" onClick={() => setForm({ ...form, pdf_url: "" })}>Quitar PDF</button>
+              </p>
+            )}
 
             <label className="admin-label">Link externo (opcional)</label>
             <input className="admin-input" placeholder="https://..." value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} />
