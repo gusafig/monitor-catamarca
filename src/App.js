@@ -73,21 +73,54 @@ async function guardarContenido(item) {
 }
 
 // ── PDF ADJUNTO (Supabase Storage, bucket público "pdfs") ─────────
-async function subirPdf(file) {
+async function subirArchivo(file, bucket, contentType) {
   const limpio = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]+/g, "-");
   const ruta = `${Date.now()}-${limpio}`;
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/pdfs/${ruta}`, {
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${ruta}`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": "application/pdf",
+      "Content-Type": contentType,
       "x-upsert": "false",
     },
     body: file,
   });
   if (!res.ok) throw new Error(await res.text());
-  return `${SUPABASE_URL}/storage/v1/object/public/pdfs/${ruta}`;
+  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${ruta}`;
+}
+
+const subirPdf = (file) => subirArchivo(file, "pdfs", "application/pdf");
+
+// Reduce la imagen (máx. 1600 px de lado, JPEG 85%) para cuidar el cupo de Supabase
+function comprimirImagen(file, maxLado = 1600, calidad = 0.85) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const k = Math.min(1, maxLado / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * k);
+      canvas.height = Math.round(img.height * k);
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        if (!blob) return reject(new Error("No se pudo comprimir la imagen"));
+        const base = file.name.replace(/\.[^.]+$/, "");
+        resolve(new File([blob], `${base}.jpg`, { type: "image/jpeg" }));
+      }, "image/jpeg", calidad);
+    };
+    img.onerror = () => reject(new Error("Imagen inválida"));
+    img.src = url;
+  });
+}
+
+async function subirImagen(file) {
+  const comprimida = await comprimirImagen(file);
+  return subirArchivo(comprimida, "imagenes", "image/jpeg");
 }
 
 function urlDescargaPdf(url, titulo) {
@@ -1018,6 +1051,7 @@ function Admin({ items, setItems, onSalir }) {
   const [vista, setVista] = useState("lista");
   const [form, setForm] = useState(formVacio());
   const [subiendoPdf, setSubiendoPdf] = useState(false);
+  const [subiendoImg, setSubiendoImg] = useState("");
 
   function formVacio() {
     return {
@@ -1066,6 +1100,23 @@ function Admin({ items, setItems, onSalir }) {
       setVista("lista");
     } catch (e) {
       alert("No se pudo guardar el artículo. Revisá la consola del navegador para más detalles.");
+    }
+  }
+
+  async function elegirImagen(e, campo) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { alert("El archivo debe ser una imagen."); return; }
+    setSubiendoImg(campo);
+    try {
+      const url = await subirImagen(file);
+      setForm((f) => ({ ...f, [campo]: url }));
+    } catch (err) {
+      console.error("Error al subir imagen:", err);
+      alert("No se pudo subir la imagen. Revisá que el bucket 'imagenes' y su política estén creados en Supabase.");
+    } finally {
+      setSubiendoImg("");
     }
   }
 
@@ -1272,12 +1323,16 @@ function Admin({ items, setItems, onSalir }) {
             </div>
             {/* ── FIN EDITOR DE BLOQUES ─────────────────────── */}
 
-            <label className="admin-label" style={{ marginTop: "1.5rem" }}>URL de imagen de portada</label>
-            <p className="admin-hint">Aparece en el listado de contenidos.</p>
+            <label className="admin-label" style={{ marginTop: "1.5rem" }}>Imagen de portada</label>
+            <p className="admin-hint">Aparece en el listado de contenidos. Subila desde tu equipo (se comprime sola) o pegá una URL.</p>
+            <input type="file" accept="image/*" onChange={(e) => elegirImagen(e, "imagen")} disabled={!!subiendoImg} />
+            {subiendoImg === "imagen" && <p className="admin-hint">Subiendo imagen…</p>}
             <input className="admin-input" placeholder="https://..." value={form.imagen} onChange={(e) => setForm({ ...form, imagen: e.target.value })} />
 
-            <label className="admin-label">URL de imagen de cabecera del artículo</label>
+            <label className="admin-label">Imagen de cabecera del artículo</label>
             <p className="admin-hint">Aparece dentro del artículo. Si está vacía, no se muestra ninguna imagen.</p>
+            <input type="file" accept="image/*" onChange={(e) => elegirImagen(e, "imagen_articulo")} disabled={!!subiendoImg} />
+            {subiendoImg === "imagen_articulo" && <p className="admin-hint">Subiendo imagen…</p>}
             <input className="admin-input" placeholder="https://... (opcional)" value={form.imagen_articulo || ""} onChange={(e) => setForm({ ...form, imagen_articulo: e.target.value })} />
 
             <label className="admin-label">PDF adjunto (opcional)</label>
